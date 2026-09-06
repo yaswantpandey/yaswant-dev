@@ -220,8 +220,15 @@ function nexus_head(
         }
       }
 
+      /* Desktop: no top header, remove top padding so content starts at top of sidebar */
+      @media(min-width:1024px) {
+        #main-content, main[id="main-content"] {
+          padding-top: 2rem !important;
+        }
+      }
+
       @media print {
-        #nexus-sidebar, #nexus-bottom-nav, #mobile-app-drawer, #drawer-overlay, #sidebar-overlay {
+        #nexus-sidebar, #nexus-bottom-nav, #mobile-app-drawer, #drawer-overlay, #sidebar-overlay, header {
           display: none !important;
         }
       }
@@ -352,6 +359,17 @@ function nexus_sidebar(string $active = ''): void
           <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
         </button>
       </div>
+      <!-- Desktop Search inside Sidebar -->
+      <div class="hidden lg:block px-md py-3 border-b border-zinc-800/40">
+        <form method="GET" action="<?= URL_SEARCH ?>" role="search" aria-label="Site search"
+          class="flex items-center bg-zinc-900 border border-zinc-800 focus-within:border-emerald-500/50 rounded-xl px-md py-2 gap-xs transition-all">
+          <span class="material-symbols-outlined text-zinc-500 text-[18px] shrink-0" aria-hidden="true">search</span>
+          <input name="q" placeholder="Search tools, notes, courses…"
+            value="<?= htmlspecialchars($_GET['q'] ?? '') ?>"
+            aria-label="Search Yaswant Dev"
+            class="bg-transparent text-white text-xs outline-none flex-1 placeholder:text-zinc-600 font-mono" />
+        </form>
+      </div>
       <nav class="flex-1 px-md space-y-xs overflow-y-auto pt-md pb-lg" aria-label="Sidebar navigation">
         <?php foreach ($sections as $section => $items): ?>
           <div class="px-md mb-xs mt-md text-[10px] font-mono uppercase tracking-widest text-zinc-500 first:mt-0"
@@ -391,8 +409,9 @@ function nexus_topbar(string $active = ''): void
     ['path' => 'blog', 'label' => 'Blog', 'href' => URL_BLOG],
   ];
   ?>
+    <!-- Top header: visible on mobile only; desktop uses sidebar -->
     <header
-      class="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-black/90 backdrop-blur-xl z-40 border-b border-zinc-800/80 flex items-center justify-between px-4 sm:px-6 lg:px-8"
+      class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-black/90 backdrop-blur-xl z-40 border-b border-zinc-800/80 flex items-center justify-between px-4 sm:px-6"
       role="banner">
       <div class="flex items-center gap-3">
         <!-- Hamburger (mobile only) -->
