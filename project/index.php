@@ -514,10 +514,10 @@ nexus_head(
       <div
         class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-md bg-surface-container rounded-xl p-md border border-outline-variant/20 shadow-md">
         <!-- Filter Category Tabs -->
-        <div class="flex items-center gap-xs overflow-x-auto pb-xs md:pb-0" id="category-tabs">
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-xs md:pb-0" id="category-tabs">
           <?php foreach (['All', 'Web Sec', 'Cryptography', 'Network Sec', 'Blue Team', 'Red Team', 'AI / Cyber'] as $cat): ?>
             <button onclick="filterProjects('<?= $cat ?>')" data-cat="<?= $cat ?>"
-              class="tab-btn px-md py-1.5 rounded-lg text-xs font-mono transition-all whitespace-nowrap <?= $cat === 'All' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold' : 'bg-surface-container-highest text-on-surface-variant hover:text-on-surface' ?>">
+              class="tab-btn px-3.5 py-1.5 rounded-full text-xs font-mono transition-all whitespace-nowrap active:scale-95 <?= $cat === 'All' ? 'bg-emerald-500 text-black shadow-[0_0_10px_rgba(16,185,129,0.3)] font-bold' : 'bg-surface-container-highest text-zinc-300 hover:text-white border border-outline-variant/20' ?>">
               <?= $cat ?>
             </button>
           <?php endforeach; ?>
@@ -528,7 +528,7 @@ nexus_head(
           <span
             class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
           <input id="proj-search" oninput="searchProjects()" placeholder="Search 25 cyber security tools…"
-            class="w-full bg-surface-container-lowest text-on-surface font-mono text-xs py-2 pl-9 pr-md rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 placeholder:text-outline" />
+            class="w-full bg-surface-container-lowest text-on-surface font-mono text-xs py-2 pl-9 pr-md rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 placeholder:text-outline" />
         </div>
       </div>
 
@@ -537,7 +537,7 @@ nexus_head(
         <?php foreach ($projects as $p): ?>
           <article data-cat="<?= htmlspecialchars($p['cat']) ?>"
             data-search="<?= strtolower(htmlspecialchars($p['title'] . ' ' . $p['desc'] . ' ' . implode(' ', $p['tags']))) ?>"
-            class="proj-card bg-surface-container hover:bg-surface-container-high rounded-xl p-md flex flex-col justify-between border border-outline-variant/20 hover:border-emerald-400/40 transition-all shadow-sm hover:shadow-lg group">
+            class="proj-card bg-surface-container hover:bg-surface-container-high rounded-2xl p-4 sm:p-5 flex flex-col justify-between border border-outline-variant/20 hover:border-emerald-400/40 transition-all shadow-sm hover:shadow-lg group active:scale-[0.98]">
 
             <div class="space-y-xs">
               <!-- Top Badges -->
