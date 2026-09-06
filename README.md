@@ -130,6 +130,28 @@ public_html/
 
 ---
 
+## 🚀 CI/CD Automated Deployment to Hostinger
+
+This repository is equipped with an automated **GitHub Actions Workflow** ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)) that automatically checks code syntax and deploys all updates directly to **Hostinger** upon every `git push` to `main`.
+
+### Setting up GitHub Secrets (One-time)
+In your GitHub repository, go to **Settings &rarr; Secrets and variables &rarr; Actions &rarr; New repository secret** and add:
+
+| Secret Name | Description | Example / Value |
+| :--- | :--- | :--- |
+| `FTP_SERVER` | Hostinger FTP Host / Server IP | `82.25.125.43` or `ftp.yaswant.co.in` |
+| `FTP_USERNAME` | Hostinger FTP Account Username | `u865909543.yaswant.co.in` |
+| `FTP_PASSWORD` | Hostinger FTP Password | *(Your FTP password)* |
+| `FTP_SERVER_DIR` *(optional)* | Remote directory (default is `public_html/`) | `public_html/` |
+
+### How It Works
+1. When you push to `main` (`git push origin main`), GitHub Actions triggers automatically.
+2. It verifies all PHP files with `php -l` to ensure zero syntax errors.
+3. It performs an intelligent incremental sync using `SamKirkland/FTP-Deploy-Action`, uploading only new or modified files directly to Hostinger in seconds without downtime.
+4. You can also trigger manual deployments from the **Actions** tab on GitHub by clicking **Run workflow**.
+
+---
+
 ## 👨‍💻 Author & Connect
 
 **Yaswant Pandey** *(Lucifer Developer)*  
