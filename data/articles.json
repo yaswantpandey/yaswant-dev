@@ -1,0 +1,38 @@
+[
+    {
+        "id": "art-1",
+        "cat": "Technical",
+        "title": "Optimizing React Rendering for Complex Dashboards",
+        "excerpt": "A deep dive into memoization techniques and state management patterns to ensure fluid 60fps performance.",
+        "author": "Alex Chen",
+        "read": "5 min",
+        "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuC4vVHL_IwCLGlbYiGGY-Aixoez7aofLZzEOg92yqBsb8XsyeyYxIG3HDYOTOjUUMuQ00axX29bwIWPwKexV1BBo4yk2UMkcfrhTSGvZXLtgyDMOoF5RXq3Mo2SGNNymCqhEjFL7KVtbT3_aswXc7L2xKGatxyn99o8L6XxEPjMCZKlOZlO_v2iPi7lP2Z40QRRcNlxEFdOIomdAebOAOZG1CJdgKT5aIx4UT27TKUXsm1uNr3i8bUT"
+    },
+    {
+        "id": "art-2",
+        "cat": "Career",
+        "title": "Navigating Your First Engineering Internship",
+        "excerpt": "Practical advice on how to make an impact, ask the right questions, and secure a return offer.",
+        "author": "Maya Patel",
+        "read": "4 min",
+        "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuApfXaVa_qtHllUIhnQ9sbs7iongBOrNC-Ui3iO6y0NXo2SNZV5a95dXwII8aaGApbE8Pt-dWoiKUI6mb9FMo8NycIvTDRMvkrW5cWRCIA7MUKNeUo90t4fSUN7xDcthN2IoFrubuqdao41AA6DkkLsBDOei5SKAYj48_alCh7M6qGsoM1GWcCo2CvyhmHET0LPqGgFms6EDCiIB43dVaswIKDIUH8-BHQtslw3QOzRTLZGXkc4apgU"
+    },
+    {
+        "id": "art-3",
+        "cat": "Technical",
+        "title": "Demystifying Kubernetes Architecture",
+        "excerpt": "Breaking down nodes, pods, and control planes for developers moving to containerized microservices.",
+        "author": "David Kim",
+        "read": "10 min",
+        "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuCuTUj04gTfFG5HwJpt1KUEUKgxBVdHrUlcfBZdU7TKmGHWf3ZUY2wau6EWYtcP6FQ-TE5g6zEXUU47ZTdOyZVP9Tmx9riwzJBkzCG8DMX0DjF2xB9BNgJxREHIgGBi4OH2U8AVcgiOnlRKKob3HiQ--xb1rcpk6FqIihIknzxnw82NYd40tA9LlU6MjZxu3IB4OPrh_ohcD5z19uL3sqlAh_1UvujSEeweeyE12gHdKzAw8ytn1e3k"
+    },
+    {
+        "id": "art-4",
+        "cat": "Student Life",
+        "title": "Managing Burnout During Finals Week",
+        "excerpt": "Strategies for maintaining mental health, optimizing study blocks, and the importance of active rest.",
+        "author": "Sarah Jenkins",
+        "read": "6 min",
+        "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuB-hjWXYloLt-xTieLJLC1vp0ep8yHxmXK4iZRWQGj8E0WImpEwlptK9WEblW0utcjm68CPIxnZCBqM-3Tavo3rxHDggMfU2By6dN0N-jidGDJlhJ5sWphI7arukYqMx__1Z9RQZIYyq7sMHkT9Q3cmlJxP2Wdjqx5ROc_G6G0pzyemsjSncZu6hukqU4LXr0yeOnrVEYlHG4MkijvqPQsY07SrQCwDimul7aw4uTcdIZ66ID31DKgY"
+    }
+]

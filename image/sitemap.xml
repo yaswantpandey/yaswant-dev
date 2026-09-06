@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Image Suite Hub -->
+  <url>
+    <loc>https://image.yaswant.co.in/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://image.yaswant.co.in/"/>
+  </url>
+
+  <!-- Photo Resizer -->
+  <url>
+    <loc>https://image.yaswant.co.in/resize.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Image Compressor -->
+  <url>
+    <loc>https://image.yaswant.co.in/compress.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Remove Background -->
+  <url>
+    <loc>https://image.yaswant.co.in/remove-bg.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Photo Cropper -->
+  <url>
+    <loc>https://image.yaswant.co.in/crop.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Format Converter -->
+  <url>
+    <loc>https://image.yaswant.co.in/convert.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Meme Generator -->
+  <url>
+    <loc>https://image.yaswant.co.in/meme.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Photo Collage Maker -->
+  <url>
+    <loc>https://image.yaswant.co.in/collage.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Rotate & Flip -->
+  <url>
+    <loc>https://image.yaswant.co.in/rotate.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Watermark -->
+  <url>
+    <loc>https://image.yaswant.co.in/watermark.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Filters & Adjustments -->
+  <url>
+    <loc>https://image.yaswant.co.in/filters.php</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

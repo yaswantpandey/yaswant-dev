@@ -1,0 +1,56 @@
+[
+    {
+        "id": "crs-1",
+        "title": "Data Structures & Algorithms",
+        "tag": "CS Fundamentals",
+        "lessons": 42,
+        "level": "Intermediate",
+        "color": "primary",
+        "icon": "account_tree"
+    },
+    {
+        "id": "crs-2",
+        "title": "Operating Systems Deep Dive",
+        "tag": "Systems",
+        "lessons": 35,
+        "level": "Advanced",
+        "color": "secondary",
+        "icon": "memory"
+    },
+    {
+        "id": "crs-3",
+        "title": "Machine Learning Basics",
+        "tag": "AI/ML",
+        "lessons": 28,
+        "level": "Beginner",
+        "color": "tertiary",
+        "icon": "psychology"
+    },
+    {
+        "id": "crs-4",
+        "title": "Web Development with React",
+        "tag": "Frontend",
+        "lessons": 50,
+        "level": "Intermediate",
+        "color": "primary",
+        "icon": "web"
+    },
+    {
+        "id": "crs-5",
+        "title": "Database Systems & SQL",
+        "tag": "Backend",
+        "lessons": 30,
+        "level": "Beginner",
+        "color": "secondary",
+        "icon": "storage"
+    },
+    {
+        "id": "crs-6",
+        "title": "Computer Networks",
+        "tag": "Networking",
+        "lessons": 25,
+        "level": "Intermediate",
+        "color": "tertiary",
+        "icon": "lan"
+    }
+]

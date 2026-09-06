@@ -1,0 +1,80 @@
+[
+    {
+        "id": "job-1",
+        "title": "Software Engineering Intern",
+        "company": "CloudNova Inc.",
+        "location": "San Francisco (Hybrid)",
+        "pay": "$45\u2013$55/hr",
+        "tags": [
+            "React",
+            "Go",
+            "Kubernetes"
+        ],
+        "color": "primary"
+    },
+    {
+        "id": "job-2",
+        "title": "ML Research Intern",
+        "company": "DeepMind Labs",
+        "location": "Remote",
+        "pay": "$50\u2013$60/hr",
+        "tags": [
+            "Python",
+            "PyTorch",
+            "CUDA"
+        ],
+        "color": "secondary"
+    },
+    {
+        "id": "job-3",
+        "title": "DevOps Intern",
+        "company": "Infra Systems",
+        "location": "New York (On-site)",
+        "pay": "$40\u2013$48/hr",
+        "tags": [
+            "Docker",
+            "Terraform",
+            "AWS"
+        ],
+        "color": "tertiary"
+    },
+    {
+        "id": "job-4",
+        "title": "Frontend Engineer Intern",
+        "company": "PixelCraft",
+        "location": "Remote",
+        "pay": "$38\u2013$45/hr",
+        "tags": [
+            "TypeScript",
+            "Next.js",
+            "Figma"
+        ],
+        "color": "primary"
+    },
+    {
+        "id": "job-5",
+        "title": "Data Engineering Intern",
+        "company": "DataStream Co.",
+        "location": "Austin (Hybrid)",
+        "pay": "$42\u2013$50/hr",
+        "tags": [
+            "Spark",
+            "SQL",
+            "Airflow"
+        ],
+        "color": "secondary"
+    },
+    {
+        "id": "job-6",
+        "title": "Embedded Systems Intern",
+        "company": "RoboCore",
+        "location": "Boston (On-site)",
+        "pay": "$44\u2013$52/hr",
+        "tags": [
+            "C++",
+            "RTOS",
+            "ARM"
+        ],
+        "color": "tertiary"
+    }
+]

@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Block admin and sensitive paths
+Disallow: /admin.php
+Disallow: /admin_login.php
+Disallow: /admin_logout.php
+Disallow: /api/
+Disallow: /data/
+Disallow: /config.php
+Disallow: /includes/
+
+# Sitemaps — Master Sitemap + All Subdomain Sitemaps
+Sitemap: https://yaswant.co.in/sitemap.xml
+Sitemap: https://resume.yaswant.co.in/sitemap.xml
+Sitemap: https://tools.yaswant.co.in/sitemap.xml
+Sitemap: https://internship.yaswant.co.in/sitemap.xml
+Sitemap: https://blog.yaswant.co.in/sitemap.xml
+Sitemap: https://course.yaswant.co.in/sitemap.xml
+Sitemap: https://resource.yaswant.co.in/sitemap.xml
+Sitemap: https://project.yaswant.co.in/sitemap.xml
+Sitemap: https://image.yaswant.co.in/sitemap.xml
+
+Crawl-delay: 2
