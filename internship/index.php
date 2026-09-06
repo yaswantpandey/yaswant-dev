@@ -62,37 +62,76 @@ if ($search) {
       </div>
 
       <!-- ── Search & Filter ─────────────────────────────────────── -->
-      <form method="GET" class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row items-center gap-3" role="search" aria-label="Search internships">
-        <div class="flex-1 w-full bg-black border border-zinc-800 rounded-xl flex items-center px-4 py-2.5 focus-within:border-emerald-500 transition-colors">
-          <span class="material-symbols-outlined text-zinc-500 mr-2 text-[20px]">search</span>
-          <label for="search-input" class="sr-only">Search roles, companies, keywords</label>
-          <input id="search-input" name="q" value="<?= htmlspecialchars($search) ?>" class="bg-transparent border-none outline-none text-white text-xs md:text-sm font-mono w-full placeholder:text-zinc-600" placeholder="Search roles (e.g. React, Python, Remote, Machine Learning)..."/>
+      <div class="space-y-3">
+        <form method="GET" class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col md:flex-row items-center gap-3" role="search" aria-label="Search internships" onsubmit="event.preventDefault(); applyJobFilters();">
+          <div class="flex-1 w-full bg-black border border-zinc-800 rounded-xl flex items-center px-3.5 py-2.5 focus-within:border-emerald-500 transition-colors">
+            <span class="material-symbols-outlined text-zinc-500 mr-2 text-[20px]">search</span>
+            <label for="search-input" class="sr-only">Search roles, companies, keywords</label>
+            <input id="search-input" name="q" value="<?= htmlspecialchars($search) ?>" class="bg-transparent border-none outline-none text-white text-xs md:text-sm font-mono w-full placeholder:text-zinc-600" placeholder="Search roles (e.g. React, Python, Remote, Machine Learning)..."/>
+          </div>
+          <button type="button" onclick="applyJobFilters()" class="w-full md:w-auto bg-emerald-500 hover:bg-emerald-400 text-black px-6 py-2.5 rounded-xl font-mono text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 transition-colors active:scale-95 shadow-md">
+            Search Roles <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+          </button>
+        </form>
+
+        <!-- Role Filter Chips -->
+        <div class="w-full overflow-x-auto no-scrollbar pb-1">
+          <div class="flex items-center gap-2 min-w-max px-1" role="tablist" aria-label="Internship Categories">
+            <button type="button" onclick="filterJobs('all', this)" class="job-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-bold transition-all flex items-center gap-1 bg-emerald-500 text-black shadow-[0_0_10px_rgba(16,185,129,0.3)] active:scale-95" role="tab" aria-selected="true">
+              <span class="material-symbols-outlined text-[15px]">work</span>
+              <span>All Roles (<?= count($jobs) ?>)</span>
+            </button>
+            <button type="button" onclick="filterJobs('software', this)" class="job-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined text-[15px] text-cyan-400">code</span>
+              <span>Software & Backend</span>
+            </button>
+            <button type="button" onclick="filterJobs('ml', this)" class="job-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined text-[15px] text-indigo-400">psychology</span>
+              <span>AI / ML</span>
+            </button>
+            <button type="button" onclick="filterJobs('frontend', this)" class="job-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined text-[15px] text-emerald-400">devices</span>
+              <span>Frontend & Web</span>
+            </button>
+            <button type="button" onclick="filterJobs('remote', this)" class="job-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined text-[15px] text-amber-400">public</span>
+              <span>Remote Only</span>
+            </button>
+          </div>
         </div>
-        <button type="submit" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white px-6 py-2.5 rounded-xl font-mono text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors">
-          Search <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+      </div>
+
+      <!-- Instant Job Empty State -->
+      <div id="instant-job-empty" class="hidden text-center py-16 text-zinc-400 font-mono">
+        <span class="material-symbols-outlined text-[48px] text-zinc-600 mb-2 block">work_off</span>
+        <p class="text-sm">No internship openings match your filter.</p>
+        <button type="button" onclick="document.getElementById('search-input').value=''; filterJobs('all', document.querySelector('.job-cat-chip'));" class="mt-3 inline-flex items-center gap-1 text-xs font-mono text-emerald-400 hover:underline">
+          <span class="material-symbols-outlined text-[14px]">refresh</span> Reset all filters
         </button>
-        <?php if ($search): ?>
-          <a href="<?= URL_INTERNSHIPS ?>" class="text-zinc-400 text-xs font-mono hover:text-white px-2">Clear</a>
-        <?php endif; ?>
-      </form>
+      </div>
 
       <!-- ── Openings Count & Status ──────────────────────────────── -->
       <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
         <h2 class="text-base font-bold text-white flex items-center gap-2">
           <span class="material-symbols-outlined text-emerald-400">work</span>
-          <?= $search ? 'Filtered Results' : 'Active Openings' ?>
+          <span id="job-heading-label"><?= $search ? 'Filtered Results' : 'Active Openings' ?></span>
         </h2>
-        <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+        <span id="job-count-badge" class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
           <?= count($jobs) ?> Roles Open
         </span>
       </div>
 
       <!-- ── Job Cards Grid ──────────────────────────────────────── -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div id="job-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <?php foreach ($jobs as $j): 
           $tags = is_array($j['tags']) ? $j['tags'] : [];
+          $tagsStr = strtolower(implode(' ', $tags));
+          $titleStr = strtolower($j['title'] . ' ' . $j['company'] . ' ' . ($j['location'] ?? ''));
         ?>
-          <article class="bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 shadow-md group">
+          <article class="job-card bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 shadow-md group active:scale-[0.98]"
+                   data-tags="<?= htmlspecialchars($tagsStr) ?>"
+                   data-title="<?= htmlspecialchars($titleStr) ?>"
+                   data-location="<?= htmlspecialchars(strtolower($j['location'] ?? '')) ?>">
             <div class="space-y-3">
               <div class="flex justify-between items-start gap-2">
                 <div>
@@ -115,7 +154,7 @@ if ($search) {
 
             <div class="flex items-center justify-between mt-5 pt-3 border-t border-zinc-900">
               <span class="text-xs font-mono font-bold text-emerald-400"><?= htmlspecialchars($j['pay']) ?></span>
-              <button onclick="alert('Application Portal: Opening official recruitment portal for <?= htmlspecialchars($j['company']) ?>...')" class="bg-emerald-500 hover:bg-emerald-400 text-black px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1 shadow-sm">
+              <button onclick="alert('Application Portal: Opening official recruitment portal for <?= htmlspecialchars($j['company']) ?>...')" class="bg-emerald-500 hover:bg-emerald-400 text-black px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1 shadow-sm active:scale-95">
                 Apply Now <span class="material-symbols-outlined text-[13px]">open_in_new</span>
               </button>
             </div>
@@ -199,5 +238,75 @@ if ($search) {
 
     </div>
   </main>
+
+  <script>
+    let activeJobCat = 'all';
+
+    function filterJobs(cat, btn) {
+      activeJobCat = cat;
+      document.querySelectorAll('.job-cat-chip').forEach(c => {
+        c.classList.remove('bg-emerald-500', 'text-black', 'font-bold', 'shadow-[0_0_10px_rgba(16,185,129,0.3)]');
+        c.classList.add('bg-zinc-900', 'border', 'border-zinc-800', 'text-zinc-400');
+        c.setAttribute('aria-selected', 'false');
+      });
+      if (btn) {
+        btn.classList.add('bg-emerald-500', 'text-black', 'font-bold', 'shadow-[0_0_10px_rgba(16,185,129,0.3)]');
+        btn.classList.remove('bg-zinc-900', 'border', 'border-zinc-800', 'text-zinc-400');
+        btn.setAttribute('aria-selected', 'true');
+      }
+      applyJobFilters();
+    }
+
+    function applyJobFilters() {
+      const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+      let visibleTotal = 0;
+
+      document.querySelectorAll('.job-card').forEach(card => {
+        const tags = card.getAttribute('data-tags') || '';
+        const title = card.getAttribute('data-title') || '';
+        const loc = card.getAttribute('data-location') || '';
+
+        let catMatch = false;
+        if (activeJobCat === 'all') {
+          catMatch = true;
+        } else if (activeJobCat === 'software') {
+          catMatch = tags.includes('software') || tags.includes('backend') || tags.includes('python') || tags.includes('java') || title.includes('software') || title.includes('backend');
+        } else if (activeJobCat === 'ml') {
+          catMatch = tags.includes('ml') || tags.includes('ai') || tags.includes('machine') || tags.includes('research') || title.includes('learning') || title.includes('ai');
+        } else if (activeJobCat === 'frontend') {
+          catMatch = tags.includes('frontend') || tags.includes('react') || tags.includes('web') || tags.includes('design') || title.includes('frontend');
+        } else if (activeJobCat === 'remote') {
+          catMatch = loc.includes('remote') || tags.includes('remote');
+        }
+
+        const searchMatch = (!q || tags.includes(q) || title.includes(q) || loc.includes(q));
+
+        if (catMatch && searchMatch) {
+          card.style.display = '';
+          visibleTotal++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      const countBadge = document.getElementById('job-count-badge');
+      if (countBadge) {
+        countBadge.innerText = visibleTotal + ' Roles Open';
+      }
+
+      const emptyMsg = document.getElementById('instant-job-empty');
+      if (emptyMsg) {
+        emptyMsg.classList.toggle('hidden', visibleTotal > 0);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.addEventListener('input', applyJobFilters);
+      }
+    });
+  </script>
+
   <?php nexus_footer(); ?>
 </div>

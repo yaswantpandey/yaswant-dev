@@ -39,7 +39,7 @@ function nexus_head(
     </script>
 
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- Primary SEO -->
@@ -92,7 +92,7 @@ function nexus_head(
     <link rel="apple-touch-icon" href="<?= $siteUrl ?>/favicon.svg" />
 
     <!-- Web App Meta -->
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="<?= $siteUrl ?>/manifest.json" />
     <meta name="theme-color" content="#09090b" />
     <meta name="application-name" content="Yaswant Dev" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -178,6 +178,27 @@ function nexus_head(
       }
 
       #mobile-app-drawer.open {
+        transform: translateY(0);
+      }
+
+      /* Mobile Profile Sheet */
+      #profile-overlay {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .25s ease;
+      }
+
+      #profile-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      #mobile-profile-sheet {
+        transform: translateY(100%);
+        transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      #mobile-profile-sheet.open {
         transform: translateY(0);
       }
 
@@ -395,7 +416,10 @@ function nexus_topbar(string $active = ''): void
         <!-- Mobile: show current brand / page name with live indicator -->
         <div class="lg:hidden flex items-center gap-2">
           <a href="<?= URL_HOME ?>" class="flex items-center gap-2" aria-label="Yaswant Dev home">
-            <span class="font-display-lg text-white font-bold text-[15px] tracking-tight">
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <span class="material-symbols-outlined text-[17px]">terminal</span>
+            </div>
+            <span class="font-display-lg text-white font-bold text-[14px] tracking-tight truncate max-w-[130px] sm:max-w-none">
               <?php
               $currentLabel = 'Yaswant Dev';
               foreach ($links as $l) {
@@ -407,11 +431,11 @@ function nexus_topbar(string $active = ''): void
               echo htmlspecialchars($currentLabel);
               ?>
             </span>
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" aria-hidden="true"></span>
           </a>
         </div>
       </div>
-      <div class="flex items-center gap-2 sm:gap-md shrink-0">
+      <div class="flex items-center gap-2 shrink-0">
         <form method="GET" action="<?= URL_SEARCH ?>"
           class="hidden lg:flex items-center bg-zinc-900 border border-zinc-800 rounded-xl px-md py-1.5 gap-xs"
           role="search" aria-label="Site search">
@@ -423,20 +447,21 @@ function nexus_topbar(string $active = ''): void
             class="hidden xl:inline-block bg-zinc-800 text-zinc-400 text-[10px] font-mono px-1.5 py-0.5 rounded border border-zinc-700">⌘K</kbd>
         </form>
         <a href="<?= URL_SEARCH ?>"
-          class="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors active:scale-95"
+          class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all active:scale-90"
           aria-label="Search">
           <span class="material-symbols-outlined text-[20px]" aria-hidden="true">search</span>
         </a>
         <button onclick="toggleAppDrawer()"
-          class="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all active:scale-95 shadow-sm"
+          class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all active:scale-90 shadow-sm relative"
           role="button" aria-label="Open App Drawer" aria-controls="mobile-app-drawer">
           <span class="material-symbols-outlined text-[20px]" aria-hidden="true">widgets</span>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
         </button>
-        <div
-          class="hidden sm:flex w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 items-center justify-center cursor-pointer hover:bg-zinc-800 hover:text-white transition-all shadow-sm"
-          role="button" aria-label="User profile" tabindex="0">
-          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
-        </div>
+        <button onclick="openProfileSheet()"
+          class="flex w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 text-emerald-400 items-center justify-center cursor-pointer hover:bg-emerald-500/30 transition-all shadow-sm active:scale-90"
+          role="button" aria-label="Developer Profile" aria-controls="mobile-profile-sheet">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">person</span>
+        </button>
       </div>
     </header>
     <script>
@@ -594,6 +619,16 @@ function nexus_footer(): void
           });
         });
       }
+      // Tactile Mobile App Haptic Feedback
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('#nexus-bottom-nav a, #nexus-bottom-nav button, .fast-app-item, .app-pill-btn').forEach(function(el) {
+          el.addEventListener('click', function() {
+            if ('vibrate' in navigator) {
+              try { navigator.vibrate(10); } catch (e) {}
+            }
+          });
+        });
+      });
     </script>
     <?php nexus_bottom_nav($GLOBALS['NEXUS_ACTIVE_PAGE'] ?? ''); ?>
   </body>
@@ -831,12 +866,84 @@ function nexus_bottom_nav(string $active = ''): void
     </div>
   </div>
 
+  <!-- Mobile Profile Overlay -->
+  <div id="profile-overlay" onclick="closeProfileSheet()"
+    class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 transition-opacity duration-300 lg:hidden"
+    aria-hidden="true"></div>
+
+  <!-- Mobile Profile Bottom Sheet -->
+  <div id="mobile-profile-sheet"
+    class="fixed left-0 right-0 bottom-0 z-50 bg-[#09090c] border-t border-zinc-800/90 rounded-t-3xl shadow-[0_-12px_50px_rgba(0,0,0,0.9)] transition-transform duration-300 ease-out max-h-[85vh] overflow-y-auto lg:hidden pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]"
+    role="dialog" aria-modal="true" aria-labelledby="profile-sheet-name">
+
+    <!-- Sticky Header with Handle -->
+    <div class="sticky top-0 bg-[#09090c]/95 backdrop-blur-xl px-5 pt-3 pb-2 border-b border-zinc-800/60 flex flex-col items-center z-10">
+      <div class="w-12 h-1.5 bg-zinc-700/80 rounded-full mb-3 cursor-pointer hover:bg-zinc-600 transition-colors" onclick="closeProfileSheet()" aria-label="Dismiss sheet"></div>
+      <div class="w-full flex items-center justify-between">
+        <h3 class="font-display-lg font-bold text-sm text-white font-mono tracking-tight">Developer Profile</h3>
+        <button onclick="closeProfileSheet()"
+          class="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition-colors active:scale-95"
+          aria-label="Close profile sheet">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <!-- User Card -->
+      <div class="flex items-center gap-4 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800/80">
+        <div class="w-13 h-13 p-3 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-black font-black text-lg shadow-lg shrink-0">
+          YP
+        </div>
+        <div class="min-w-0">
+          <h4 id="profile-sheet-name" class="font-bold text-white text-base truncate">Yaswant Pandey</h4>
+          <p class="text-xs text-zinc-400 font-mono truncate">Software Engineer & Researcher</p>
+          <div class="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono mt-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Ecosystem Active (OS v2.5)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Links -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <a href="https://github.com/Yaswantpandey" target="_blank" rel="noopener"
+          class="flex items-center gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-emerald-500/40 text-zinc-300 hover:text-white transition-all text-xs font-mono active:scale-95">
+          <span class="material-symbols-outlined text-emerald-400 text-[18px]">code</span>
+          <span>GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/ecotechservices/" target="_blank" rel="noopener"
+          class="flex items-center gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-cyan-500/40 text-zinc-300 hover:text-white transition-all text-xs font-mono active:scale-95">
+          <span class="material-symbols-outlined text-cyan-400 text-[18px]">work</span>
+          <span>LinkedIn</span>
+        </a>
+        <a href="<?= URL_RESUME ?>" onclick="closeProfileSheet()"
+          class="flex items-center gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-indigo-500/40 text-zinc-300 hover:text-white transition-all text-xs font-mono active:scale-95">
+          <span class="material-symbols-outlined text-indigo-400 text-[18px]">badge</span>
+          <span>ATS Resume</span>
+        </a>
+        <a href="<?= URL_HOME ?>/admin_login.php" onclick="closeProfileSheet()"
+          class="flex items-center gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-xs font-mono active:scale-95">
+          <span class="material-symbols-outlined text-rose-400 text-[18px]">lock</span>
+          <span>Admin Login</span>
+        </a>
+      </div>
+
+      <!-- Native Share App Button -->
+      <button onclick="shareEcosystemApp()"
+        class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold font-mono py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95">
+        <span class="material-symbols-outlined text-[18px]">share</span> Share Yaswant Dev Ecosystem
+      </button>
+    </div>
+  </div>
+
   <script>
     function openAppDrawer() {
       var d = document.getElementById('mobile-app-drawer');
       var o = document.getElementById('drawer-overlay');
       var b = document.getElementById('btn-app-drawer');
       if (d && o) {
+        closeProfileSheet();
         d.classList.add('open');
         o.classList.add('open');
         if (b) b.setAttribute('aria-expanded', 'true');
@@ -862,9 +969,41 @@ function nexus_bottom_nav(string $active = ''): void
         openAppDrawer();
       }
     }
+    function openProfileSheet() {
+      var s = document.getElementById('mobile-profile-sheet');
+      var o = document.getElementById('profile-overlay');
+      if (s && o) {
+        closeAppDrawer();
+        s.classList.add('open');
+        o.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+    function closeProfileSheet() {
+      var s = document.getElementById('mobile-profile-sheet');
+      var o = document.getElementById('profile-overlay');
+      if (s && o) {
+        s.classList.remove('open');
+        o.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+    function shareEcosystemApp() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'Yaswant Dev — Developer & Engineering Ecosystem',
+          text: 'Explore 26+ Cyber & Dev Tools, ATS Resume Studio, Study Notes, and Tech Internships on yaswant.co.in',
+          url: 'https://yaswant.co.in'
+        }).catch(function() {});
+      } else {
+        navigator.clipboard.writeText('https://yaswant.co.in');
+        alert('Ecosystem link copied to clipboard!');
+      }
+    }
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeAppDrawer();
+        closeProfileSheet();
         if (typeof closeSidebar === 'function') closeSidebar();
       }
     });

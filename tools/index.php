@@ -89,21 +89,56 @@ if ($q) {
       </nav>
 
       <!-- Header & Search -->
-      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-md bg-surface-container-high rounded-2xl p-lg border border-outline-variant/20 shadow-lg">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-md bg-surface-container-high rounded-2xl p-4 sm:p-6 md:p-8 border border-outline-variant/20 shadow-lg">
         <div>
           <div class="inline-flex items-center gap-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider mb-xs border border-emerald-500/20">
             <span class="material-symbols-outlined text-[16px]">terminal</span> Live Interactive Security Tools
           </div>
           <h1 class="font-display-lg text-headline-md md:text-display-lg-mobile text-on-surface">Developer & Cyber Security Tools</h1>
-          <p class="font-body-md text-sm text-on-surface-variant">Client-side security tools, SIEM log analyzers, rate limiters, packet sniffer simulators, YARA malware scanners, firewall simulators, SQLi auditors, 2FA engines, and dev utilities engineered for zero-knowledge privacy.</p>
+          <p class="font-body-md text-xs sm:text-sm text-on-surface-variant max-w-2xl mt-1">Client-side security tools, SIEM log analyzers, rate limiters, packet sniffer simulators, YARA malware scanners, firewall simulators, SQLi auditors, 2FA engines, and dev utilities engineered for zero-knowledge privacy.</p>
         </div>
-        <form method="GET" class="relative w-full md:w-80" role="search" aria-label="Search tools">
+        <form method="GET" class="relative w-full md:w-80" role="search" aria-label="Search tools" onsubmit="event.preventDefault(); applyToolFilters();">
           <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline" aria-hidden="true">search</span>
           <label for="tools-search" class="sr-only">Search tools</label>
           <input id="tools-search" name="q" value="<?= htmlspecialchars($q) ?>"
-            class="w-full bg-surface-container-lowest text-on-surface font-mono py-sm pl-2xl pr-md rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-xs placeholder:text-outline"
-            placeholder="Search security tools, formatters…" />
+            class="w-full bg-surface-container-lowest text-on-surface font-mono py-2.5 pl-10 pr-md rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-xs placeholder:text-outline"
+            placeholder="Live search 30+ tools…" />
         </form>
+      </div>
+
+      <!-- Mobile-First App Category Filter Pills -->
+      <div class="w-full overflow-x-auto no-scrollbar pb-1 -mt-2">
+        <div class="flex items-center gap-2 min-w-max px-1" role="tablist" aria-label="Tool Categories">
+          <button type="button" onclick="filterTools('all', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-bold transition-all flex items-center gap-1.5 bg-emerald-500 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)] active:scale-95" role="tab" aria-selected="true">
+            <span class="material-symbols-outlined text-[16px]">grid_view</span>
+            <span>All Tools (<?= array_sum(array_map('count', $toolSections)) ?>)</span>
+          </button>
+          <button type="button" onclick="filterTools('cyber', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1.5 bg-surface-container-high border border-outline-variant/30 text-zinc-300 hover:text-white hover:border-emerald-500/40 active:scale-95" role="tab" aria-selected="false">
+            <span class="material-symbols-outlined text-[16px] text-emerald-400">shield</span>
+            <span>Cyber Security (<?= count($toolSections['Cyber Security Tools & Calculators'] ?? []) ?>)</span>
+          </button>
+          <button type="button" onclick="filterTools('dev', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1.5 bg-surface-container-high border border-outline-variant/30 text-zinc-300 hover:text-white hover:border-cyan-500/40 active:scale-95" role="tab" aria-selected="false">
+            <span class="material-symbols-outlined text-[16px] text-cyan-400">code</span>
+            <span>Dev Utilities (<?= count($toolSections['Developer & Engineering Utilities'] ?? []) ?>)</span>
+          </button>
+          <button type="button" onclick="filterTools('image', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1.5 bg-surface-container-high border border-outline-variant/30 text-zinc-300 hover:text-white hover:border-amber-500/40 active:scale-95" role="tab" aria-selected="false">
+            <span class="material-symbols-outlined text-[16px] text-amber-400">image</span>
+            <span>Image Suite (<?= count($toolSections['Image Editing Tools (image.yaswant.co.in)'] ?? []) ?>)</span>
+          </button>
+          <button type="button" onclick="filterTools('projects', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1.5 bg-surface-container-high border border-outline-variant/30 text-zinc-300 hover:text-white hover:border-indigo-500/40 active:scale-95" role="tab" aria-selected="false">
+            <span class="material-symbols-outlined text-[16px] text-indigo-400">folder_special</span>
+            <span>Projects & Labs (<?= count($toolSections['Career & Projects Showcase'] ?? []) ?>)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Instant Empty State -->
+      <div id="instant-empty-state" class="hidden text-center py-2xl text-on-surface-variant font-mono">
+        <span class="material-symbols-outlined text-[56px] text-outline mb-md block" aria-hidden="true">search_off</span>
+        <p class="text-sm">No utilities found matching your criteria.</p>
+        <button type="button" onclick="document.getElementById('tools-search').value=''; filterTools('all', document.querySelector('.category-chip'));" class="mt-3 inline-flex items-center gap-1.5 text-xs font-mono text-emerald-400 hover:underline">
+          <span class="material-symbols-outlined text-[14px]">refresh</span> Reset all filters
+        </button>
       </div>
 
       <!-- Tools Grid -->
@@ -113,40 +148,53 @@ if ($q) {
           No tools found for "<?= htmlspecialchars($q) ?>". <a href="<?= URL_TOOLS ?>" class="text-emerald-400 hover:underline">Clear search</a>
         </div>
       <?php else: ?>
-        <div class="space-y-2xl">
-          <?php foreach ($toolSections as $section => $tools): ?>
-            <section aria-labelledby="section-<?= preg_replace('/\W+/', '-', strtolower($section)) ?>">
+        <?php
+        $catSlugs = [
+          'Cyber Security Tools & Calculators' => 'cyber',
+          'Developer & Engineering Utilities' => 'dev',
+          'Image Editing Tools (image.yaswant.co.in)' => 'image',
+          'Career & Projects Showcase' => 'projects',
+        ];
+        ?>
+        <div id="tools-container" class="space-y-2xl">
+          <?php foreach ($toolSections as $section => $tools): 
+            $secCat = $catSlugs[$section] ?? 'cyber';
+          ?>
+            <section class="tool-section-block" data-category="<?= $secCat ?>" aria-labelledby="section-<?= preg_replace('/\W+/', '-', strtolower($section)) ?>">
               <div class="flex items-center gap-md mb-lg">
                 <h2 id="section-<?= preg_replace('/\W+/', '-', strtolower($section)) ?>" class="font-headline-md text-lg font-bold text-on-surface flex items-center gap-xs">
                   <span class="material-symbols-outlined text-emerald-400">shield</span> <?= htmlspecialchars($section) ?>
                 </h2>
                 <div class="flex-1 h-px bg-outline-variant/20" aria-hidden="true"></div>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 <?php foreach ($tools as $t):
                   $href = isset($t['file']) ? URL_TOOLS . '/' . $t['file'] : ($t['href'] ?? 'javascript:void(0)');
                   $click = isset($t['modal']) ? "openToolModal('{$t['modal']}')" : '';
                   ?>
-                  <div class="group relative bg-surface-container hover:bg-surface-container-high border border-outline-variant/20 hover:border-emerald-400/40 transition-all rounded-2xl p-lg overflow-hidden flex flex-col justify-between h-44 shadow-md hover:shadow-xl">
-                    <div class="flex justify-between items-start z-10">
-                      <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-black transition-colors shadow-sm">
+                  <div class="tool-card group relative bg-surface-container hover:bg-surface-container-high border border-outline-variant/20 hover:border-emerald-400/40 transition-all rounded-2xl p-4 sm:p-5 overflow-hidden flex flex-col justify-between min-h-[148px] shadow-md hover:shadow-xl active:scale-[0.98]"
+                       data-category="<?= $secCat ?>"
+                       data-name="<?= htmlspecialchars(strtolower($t['name'])) ?>"
+                       data-desc="<?= htmlspecialchars(strtolower($t['desc'])) ?>">
+                    <div class="flex justify-between items-start z-10 gap-2">
+                      <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-black transition-colors shadow-sm shrink-0">
                         <span class="material-symbols-outlined text-[22px]" aria-hidden="true"><?= $t['icon'] ?></span>
                       </div>
                       <?php if (isset($t['file'])): ?>
-                        <div class="flex items-center gap-xs">
-                          <button onclick="<?= $click ?>" class="text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded border border-emerald-500/20 hover:bg-emerald-500 hover:text-black transition-colors">Modal</button>
-                          <a href="<?= $href ?>" class="text-xs font-mono text-outline hover:text-emerald-400 flex items-center gap-xs" title="Open Dedicated Page">
-                            <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                        <div class="flex items-center gap-1.5">
+                          <button type="button" onclick="<?= $click ?>" class="text-[10px] font-mono uppercase bg-emerald-500/15 text-emerald-400 px-2.5 py-1 rounded-lg border border-emerald-500/30 hover:bg-emerald-500 hover:text-black transition-colors active:scale-95">Modal</button>
+                          <a href="<?= $href ?>" class="w-7 h-7 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-outline hover:text-emerald-400 flex items-center justify-center transition-colors active:scale-95" title="Open Dedicated Page">
+                            <span class="material-symbols-outlined text-[15px]">open_in_new</span>
                           </a>
                         </div>
                       <?php else: ?>
-                        <a href="<?= $href ?>" class="text-xs font-mono text-outline group-hover:text-emerald-400 flex items-center gap-xs">
-                          Open <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                        <a href="<?= $href ?>" class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg hover:bg-emerald-500 hover:text-black flex items-center gap-1 transition-all active:scale-95">
+                          Launch <span class="material-symbols-outlined text-[13px]">open_in_new</span>
                         </a>
                       <?php endif; ?>
                     </div>
-                    <div class="z-10 mt-xs">
-                      <h3 class="font-headline-md text-sm font-bold text-on-surface mb-xs group-hover:text-emerald-400 transition-colors">
+                    <div class="z-10 mt-2">
+                      <h3 class="font-headline-md text-sm font-bold text-on-surface mb-1 group-hover:text-emerald-400 transition-colors">
                         <a href="<?= $href ?>" class="hover:underline"><?= htmlspecialchars($t['name']) ?></a>
                       </h3>
                       <p class="font-body-md text-xs leading-relaxed text-on-surface-variant line-clamp-2"><?= htmlspecialchars($t['desc']) ?></p>
@@ -782,6 +830,64 @@ if ($q) {
 </div>
 
 <script>
+  let activeToolCat = 'all';
+
+  function filterTools(cat, btn) {
+    activeToolCat = cat;
+    document.querySelectorAll('.category-chip').forEach(c => {
+      c.classList.remove('bg-emerald-500', 'text-black', 'font-bold', 'shadow-[0_0_12px_rgba(16,185,129,0.3)]');
+      c.classList.add('bg-surface-container-high', 'border', 'border-outline-variant/30', 'text-zinc-300');
+      c.setAttribute('aria-selected', 'false');
+    });
+    if (btn) {
+      btn.classList.add('bg-emerald-500', 'text-black', 'font-bold', 'shadow-[0_0_12px_rgba(16,185,129,0.3)]');
+      btn.classList.remove('bg-surface-container-high', 'border', 'border-outline-variant/30', 'text-zinc-300');
+      btn.setAttribute('aria-selected', 'true');
+    }
+    applyToolFilters();
+  }
+
+  function applyToolFilters() {
+    const q = (document.getElementById('tools-search')?.value || '').trim().toLowerCase();
+    let visibleTotal = 0;
+
+    document.querySelectorAll('.tool-section-block').forEach(sec => {
+      const secCat = sec.getAttribute('data-category');
+      let visibleInSection = 0;
+
+      sec.querySelectorAll('.tool-card').forEach(card => {
+        const cCat = card.getAttribute('data-category');
+        const cName = card.getAttribute('data-name') || '';
+        const cDesc = card.getAttribute('data-desc') || '';
+
+        const catMatches = (activeToolCat === 'all' || activeToolCat === cCat);
+        const searchMatches = (!q || cName.includes(q) || cDesc.includes(q));
+
+        if (catMatches && searchMatches) {
+          card.style.display = '';
+          visibleInSection++;
+          visibleTotal++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      sec.style.display = (visibleInSection > 0) ? '' : 'none';
+    });
+
+    const emptyMsg = document.getElementById('instant-empty-state');
+    if (emptyMsg) {
+      emptyMsg.classList.toggle('hidden', visibleTotal > 0);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('tools-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', applyToolFilters);
+    }
+  });
+
   let totpInterval = null;
   let packetInterval = null;
   let packetCount = 0;

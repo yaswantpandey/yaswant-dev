@@ -65,36 +65,74 @@ if ($search) {
       </div>
 
       <!-- ── Search & Filter Bar ─────────────────────────────────── -->
-      <form method="GET"
-        class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row items-center gap-3"
-        role="search" aria-label="Search courses">
-        <div
-          class="flex-1 w-full bg-black border border-zinc-800 rounded-xl flex items-center px-4 py-2.5 focus-within:border-emerald-500 transition-colors">
-          <span class="material-symbols-outlined text-zinc-500 mr-2 text-[20px]">search</span>
-          <label for="course-search" class="sr-only">Search courses</label>
-          <input id="course-search" name="q" value="<?= htmlspecialchars($search) ?>"
-            class="bg-transparent border-none outline-none text-white text-xs md:text-sm font-mono w-full placeholder:text-zinc-600"
-            placeholder="Search courses (e.g. DSA, Machine Learning, Operating Systems, Backend)..." />
+      <div class="space-y-3">
+        <form method="GET"
+          class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col md:flex-row items-center gap-3"
+          role="search" aria-label="Search courses" onsubmit="event.preventDefault(); applyCourseFilters();">
+          <div
+            class="flex-1 w-full bg-black border border-zinc-800 rounded-xl flex items-center px-3.5 py-2.5 focus-within:border-emerald-500 transition-colors">
+            <span class="material-symbols-outlined text-zinc-500 mr-2 text-[20px]">search</span>
+            <label for="course-search" class="sr-only">Search courses</label>
+            <input id="course-search" name="q" value="<?= htmlspecialchars($search) ?>"
+              class="bg-transparent border-none outline-none text-white text-xs md:text-sm font-mono w-full placeholder:text-zinc-600"
+              placeholder="Search courses (e.g. DSA, Machine Learning, Operating Systems)..." />
+          </div>
+          <button type="button" onclick="applyCourseFilters()"
+            class="w-full md:w-auto bg-emerald-500 hover:bg-emerald-400 text-black px-6 py-2.5 rounded-xl font-mono text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 transition-colors shadow-md active:scale-95">
+            Filter Courses <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+          </button>
+        </form>
+
+        <!-- Category Filter Chips -->
+        <div class="w-full overflow-x-auto no-scrollbar pb-1">
+          <div class="flex items-center gap-2 min-w-max px-1" role="tablist" aria-label="Course Categories">
+            <button type="button" onclick="filterCourses('all', this)" class="course-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-bold transition-all flex items-center gap-1 bg-emerald-500 text-black shadow-[0_0_10px_rgba(16,185,129,0.3)] active:scale-95" role="tab" aria-selected="true">
+              <span class="material-symbols-outlined text-[15px]">school</span>
+              <span>All Curricula</span>
+            </button>
+            <button type="button" onclick="filterCourses('algorithms', this)" class="course-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined text-[15px] text-cyan-400">account_tree</span>
+              <span>DSA & Algos</span>
+            </button>
+            <button type="button" onclick="filterCourses('systems', this)" class="course-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined text-[15px] text-indigo-400">memory</span>
+              <span>Systems & OS</span>
+            </button>
+            <button type="button" onclick="filterCourses('web', this)" class="course-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined text-[15px] text-emerald-400">code</span>
+              <span>Full-Stack Web</span>
+            </button>
+            <button type="button" onclick="filterCourses('ai', this)" class="course-cat-chip px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined text-[15px] text-rose-400">psychology</span>
+              <span>AI & ML</span>
+            </button>
+          </div>
         </div>
-        <button type="submit"
-          class="bg-emerald-500 hover:bg-emerald-400 text-black px-6 py-2.5 rounded-xl font-mono text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors shadow-md">
-          Filter Courses <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+      </div>
+
+      <!-- Instant Empty State -->
+      <div id="instant-course-empty" class="hidden text-center py-16 text-zinc-400 font-mono">
+        <span class="material-symbols-outlined text-[48px] text-zinc-600 mb-2 block">school</span>
+        <p class="text-sm">No courses found matching your filter.</p>
+        <button type="button" onclick="document.getElementById('course-search').value=''; filterCourses('all', document.querySelector('.course-cat-chip'));" class="mt-3 inline-flex items-center gap-1 text-xs font-mono text-emerald-400 hover:underline">
+          <span class="material-symbols-outlined text-[14px]">refresh</span> Reset all filters
         </button>
-        <?php if ($search): ?>
-          <a href="<?= URL_COURSES ?>" class="text-zinc-400 text-xs font-mono hover:text-white px-2">Clear</a>
-        <?php endif; ?>
-      </form>
+      </div>
 
       <!-- ── Course Grid ─────────────────────────────────────────── -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div id="course-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <?php foreach ($courses as $c):
           $courseLink = !empty($c['playlist_url']) ? $c['playlist_url'] : null;
           // isRoadmap = any internal relative URL (starts with /) = a detail/roadmap page we built
           $isRoadmap = !empty($c['playlist_url']) && substr($c['playlist_url'], 0, 1) === '/';
           $tagClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+          $tagLower = strtolower($c['tag'] ?? '');
+          $titleLower = strtolower($c['title'] ?? '');
           ?>
           <article
-            class="bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/40 rounded-2xl p-6 transition-all duration-300 shadow-md hover:shadow-xl group flex flex-col justify-between<?= $courseLink ? ' cursor-pointer' : '' ?>"
+            class="course-card bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/40 rounded-2xl p-5 sm:p-6 transition-all duration-300 shadow-md hover:shadow-xl group flex flex-col justify-between active:scale-[0.98]<?= $courseLink ? ' cursor-pointer' : '' ?>"
+            data-tag="<?= htmlspecialchars($tagLower) ?>"
+            data-title="<?= htmlspecialchars($titleLower) ?>"
             <?= $courseLink ? ' onclick="window.location=\'' . htmlspecialchars($courseLink) . '\'"' : '' ?>
             role="<?= $courseLink ? 'link' : 'article' ?>">
             <div class="space-y-4">
@@ -239,5 +277,69 @@ if ($search) {
 
     </div>
   </main>
+
+  <script>
+    let activeCourseCat = 'all';
+
+    function filterCourses(cat, btn) {
+      activeCourseCat = cat;
+      document.querySelectorAll('.course-cat-chip').forEach(c => {
+        c.classList.remove('bg-emerald-500', 'text-black', 'font-bold', 'shadow-[0_0_10px_rgba(16,185,129,0.3)]');
+        c.classList.add('bg-zinc-900', 'border', 'border-zinc-800', 'text-zinc-400');
+        c.setAttribute('aria-selected', 'false');
+      });
+      if (btn) {
+        btn.classList.add('bg-emerald-500', 'text-black', 'font-bold', 'shadow-[0_0_10px_rgba(16,185,129,0.3)]');
+        btn.classList.remove('bg-zinc-900', 'border', 'border-zinc-800', 'text-zinc-400');
+        btn.setAttribute('aria-selected', 'true');
+      }
+      applyCourseFilters();
+    }
+
+    function applyCourseFilters() {
+      const q = (document.getElementById('course-search')?.value || '').trim().toLowerCase();
+      let visibleTotal = 0;
+
+      document.querySelectorAll('.course-card').forEach(card => {
+        const tag = card.getAttribute('data-tag') || '';
+        const title = card.getAttribute('data-title') || '';
+
+        let catMatch = false;
+        if (activeCourseCat === 'all') {
+          catMatch = true;
+        } else if (activeCourseCat === 'algorithms') {
+          catMatch = tag.includes('algorithm') || tag.includes('dsa') || title.includes('data structure') || title.includes('algorithm');
+        } else if (activeCourseCat === 'systems') {
+          catMatch = tag.includes('kernel') || tag.includes('system') || tag.includes('os') || title.includes('operating') || title.includes('network');
+        } else if (activeCourseCat === 'web') {
+          catMatch = tag.includes('web') || tag.includes('full-stack') || tag.includes('dbms') || title.includes('web') || title.includes('database');
+        } else if (activeCourseCat === 'ai') {
+          catMatch = tag.includes('ai') || tag.includes('ml') || tag.includes('machine') || title.includes('machine learning') || title.includes('python');
+        }
+
+        const searchMatch = (!q || tag.includes(q) || title.includes(q));
+
+        if (catMatch && searchMatch) {
+          card.style.display = '';
+          visibleTotal++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      const emptyMsg = document.getElementById('instant-course-empty');
+      if (emptyMsg) {
+        emptyMsg.classList.toggle('hidden', visibleTotal > 0);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('course-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', applyCourseFilters);
+      }
+    });
+  </script>
+
   <?php nexus_footer(); ?>
 </div>

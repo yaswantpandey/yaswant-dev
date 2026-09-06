@@ -382,13 +382,102 @@ nexus_head(
         </div>
 
         <!-- Trending pills -->
-        <div class="pill-tags-wrap flex items-center justify-start sm:justify-center overflow-x-auto max-w-full no-scrollbar gap-2 mb-8 md:mb-10 px-2 pb-1.5">
+        <div class="pill-tags-wrap flex items-center justify-start sm:justify-center overflow-x-auto max-w-full no-scrollbar gap-2 mb-6 md:mb-8 px-2 pb-1.5">
           <span class="text-[10px] font-mono uppercase tracking-widest text-zinc-600 shrink-0">Trending:</span>
           <a href="search.php?q=Data+Structures" class="pill-tag shrink-0 active:scale-95">#DataStructures</a>
           <a href="search.php?q=Operating+Systems" class="pill-tag shrink-0 active:scale-95">#OperatingSystems</a>
           <a href="search.php?q=Web+Dev" class="pill-tag shrink-0 active:scale-95">#WebDev</a>
           <a href="resume.php" class="pill-tag shrink-0 active:scale-95">#ATSResume</a>
           <a href="<?= URL_TOOLS ?>" class="pill-tag shrink-0 active:scale-95">#CyberTools</a>
+        </div>
+
+        <!-- ── Mobile App Quick Action Tray (App-Style Fast Launch) ── -->
+        <div class="w-full max-w-2xl mx-auto mb-8 px-2">
+          <div class="flex items-center justify-between px-1 mb-3">
+            <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-400 font-semibold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Fast App Launch
+            </span>
+            <span class="text-[10px] font-mono text-zinc-600 hidden sm:inline">Swipe horizontally &rarr;</span>
+          </div>
+          <div class="flex items-center gap-3.5 overflow-x-auto no-scrollbar pb-2 pt-1 px-1 -mx-1 snap-x">
+            <!-- Tools -->
+            <a href="<?= URL_TOOLS ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-700/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_4px_16px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:border-emerald-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">terminal</span>
+                <span class="absolute -top-1 -right-1 bg-emerald-500 text-black text-[9px] font-black font-mono px-1.5 py-0.2 rounded-full shadow">26+</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Tools</span>
+            </a>
+
+            <!-- ATS Resume -->
+            <a href="<?= URL_RESUME ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-700/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_4px_16px_rgba(6,182,212,0.15)] group-hover:scale-105 group-hover:border-cyan-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">description</span>
+                <span class="absolute -top-1 -right-1 bg-cyan-400 text-black text-[9px] font-black font-mono px-1.5 py-0.2 rounded-full shadow">Free</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Resume</span>
+            </a>
+
+            <!-- Study Notes -->
+            <a href="<?= URL_RESOURCES ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-indigo-700/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-[0_4px_16px_rgba(99,102,241,0.15)] group-hover:scale-105 group-hover:border-indigo-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">folder_open</span>
+                <span class="absolute -top-1 -right-1 bg-indigo-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.2 rounded-full shadow">PYQ</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Notes</span>
+            </a>
+
+            <!-- Image Suite -->
+            <a href="<?= URL_IMAGE ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-700/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-[0_4px_16px_rgba(245,158,11,0.15)] group-hover:scale-105 group-hover:border-amber-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">image</span>
+                <span class="absolute -top-1 -right-1 bg-amber-400 text-black text-[9px] font-black font-mono px-1 py-0.2 rounded-full shadow">KB</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Image</span>
+            </a>
+
+            <!-- Cyber Security Projects -->
+            <a href="<?= URL_PROJECT ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-700/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-[0_4px_16px_rgba(244,63,94,0.15)] group-hover:scale-105 group-hover:border-rose-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">folder_special</span>
+                <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold font-mono px-1 py-0.2 rounded-full shadow">25+</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Projects</span>
+            </a>
+
+            <!-- Internships -->
+            <a href="<?= URL_INTERNSHIPS ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-teal-500/20 to-teal-700/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-[0_4px_16px_rgba(20,184,166,0.15)] group-hover:scale-105 group-hover:border-teal-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">work</span>
+                <span class="absolute -top-1 -right-1 bg-teal-400 text-black text-[9px] font-bold font-mono px-1 py-0.2 rounded-full shadow">2026</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Internships</span>
+            </a>
+
+            <!-- Courses -->
+            <a href="<?= URL_COURSES ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-violet-700/10 border border-violet-500/30 flex items-center justify-center text-violet-400 shadow-[0_4px_16px_rgba(139,92,246,0.15)] group-hover:scale-105 group-hover:border-violet-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">school</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Courses</span>
+            </a>
+
+            <!-- Blog -->
+            <a href="<?= URL_BLOG ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-700/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-[0_4px_16px_rgba(168,85,247,0.15)] group-hover:scale-105 group-hover:border-purple-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">article</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Blog</span>
+            </a>
+
+            <!-- Dashboard -->
+            <a href="<?= URL_DASHBOARD ?>" class="fast-app-item flex flex-col items-center gap-1.5 group shrink-0 snap-start active:scale-95 transition-transform" style="width: 66px;">
+              <div class="relative w-13 h-13 sm:w-14 sm:h-14 p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-700/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-[0_4px_16px_rgba(59,130,246,0.15)] group-hover:scale-105 group-hover:border-blue-400 transition-all">
+                <span class="material-symbols-outlined text-[24px]">dashboard</span>
+              </div>
+              <span class="text-[11px] font-medium text-zinc-300 text-center tracking-tight truncate w-full">Dashboard</span>
+            </a>
+          </div>
         </div>
 
         <!-- CTA Buttons -->
@@ -451,7 +540,6 @@ nexus_head(
             </div>
           </article>
 
-          <a href="https://trafficpeak.io">Boost Your Website Traffic with TrafficPeak</a>
           <!-- ATS Resume Studio -->
           <article class="card-base card-blue flex flex-col justify-between">
             <div class="absolute -right-4 -bottom-4 opacity-[0.05]" aria-hidden="true">

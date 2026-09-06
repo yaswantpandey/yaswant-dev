@@ -60,11 +60,56 @@ $filtered = array_values(array_filter($resources, function($r) use ($filterBranc
         </div>
       </div>
 
+      <!-- Mobile Quick Filter Chips Bar (lg:hidden) -->
+      <div class="lg:hidden w-full space-y-2.5 bg-zinc-950/80 border border-zinc-800 rounded-2xl p-3.5 shadow-md">
+        <!-- Search bar -->
+        <form method="GET" class="relative w-full">
+          <?php if ($filterBranch): ?><input type="hidden" name="branch" value="<?= htmlspecialchars($filterBranch) ?>"><?php endif; ?>
+          <?php if ($filterSem): ?><input type="hidden" name="sem" value="<?= htmlspecialchars($filterSem) ?>"><?php endif; ?>
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-[18px]">search</span>
+          <input name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Search notes, subjects, PYQs…"
+            class="w-full bg-black text-white text-xs font-mono pl-9 pr-8 py-2 rounded-xl border border-zinc-800 focus:outline-none focus:border-emerald-500 placeholder:text-zinc-600" />
+          <?php if ($search): ?>
+            <a href="<?= URL_RESOURCES ?>?branch=<?= urlencode($filterBranch) ?>&sem=<?= urlencode($filterSem) ?>" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white text-xs font-mono">✕</a>
+          <?php endif; ?>
+        </form>
+
+        <!-- Branch Chips -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          <span class="text-[10px] font-mono text-zinc-500 uppercase shrink-0 mr-1">Branch:</span>
+          <?php 
+          $branches = ['' => 'All', 'CS' => 'CS', 'ME' => 'ME', 'EC' => 'EC'];
+          foreach ($branches as $bVal => $bLbl):
+            $isActive = ($filterBranch === $bVal);
+            $url = URL_RESOURCES . '?' . http_build_query(array_filter(['branch' => $bVal, 'sem' => $filterSem, 'q' => $search]));
+          ?>
+            <a href="<?= $url ?>" class="shrink-0 px-3 py-1 rounded-full text-[11px] font-mono font-medium transition-all active:scale-95 <?= $isActive ? 'bg-emerald-500 text-black font-bold shadow-[0_0_8px_rgba(16,185,129,0.3)]' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white' ?>">
+              <?= $bLbl ?>
+            </a>
+          <?php endforeach; ?>
+        </div>
+
+        <!-- Semester Chips -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+          <span class="text-[10px] font-mono text-zinc-500 uppercase shrink-0 mr-1">Sem:</span>
+          <?php 
+          $sems = ['' => 'All', 'S1' => 'S1', 'S2' => 'S2', 'S3' => 'S3', 'S4' => 'S4', 'S5' => 'S5', 'S6' => 'S6', 'S7' => 'S7', 'S8' => 'S8'];
+          foreach ($sems as $sVal => $sLbl):
+            $isActive = ($filterSem === $sVal);
+            $url = URL_RESOURCES . '?' . http_build_query(array_filter(['branch' => $filterBranch, 'sem' => $sVal, 'q' => $search]));
+          ?>
+            <a href="<?= $url ?>" class="shrink-0 px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-medium transition-all active:scale-95 <?= $isActive ? 'bg-cyan-400 text-black font-bold shadow-[0_0_8px_rgba(6,182,212,0.3)]' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white' ?>">
+              <?= $sLbl ?>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
       <!-- ── Layout: Sidebar Filters + Main Results ──────────────── -->
       <div class="flex flex-col lg:flex-row gap-6 w-full items-start">
 
-        <!-- Filters Sidebar -->
-        <aside class="w-full lg:w-72 shrink-0 bg-zinc-950 border border-zinc-800 rounded-2xl p-5 shadow-lg space-y-6 sticky top-20" aria-label="Filter resources">
+        <!-- Filters Sidebar (Desktop) -->
+        <aside class="hidden lg:block w-full lg:w-72 shrink-0 bg-zinc-950 border border-zinc-800 rounded-2xl p-5 shadow-lg space-y-6 sticky top-20" aria-label="Filter resources">
           <form method="GET" class="space-y-5">
             <!-- Search -->
             <div class="space-y-1.5">
@@ -129,9 +174,9 @@ $filtered = array_values(array_filter($resources, function($r) use ($filterBranc
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
             <?php foreach ($filtered as $r): ?>
-              <article class="bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 shadow-md group">
+              <article class="bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 shadow-md group active:scale-[0.98]">
                 <div class="space-y-3">
                   <div class="flex gap-1.5 flex-wrap">
                     <span class="bg-zinc-900 border border-zinc-800 text-zinc-300 px-2 py-0.5 rounded text-[10px] font-mono uppercase font-bold">
