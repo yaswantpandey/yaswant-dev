@@ -29,14 +29,15 @@ switch ($action) {
         $by = trim($_POST['by'] ?? 'Yaswant Admin');
         $size = trim($_POST['size'] ?? '2.0 MB');
         $color = trim($_POST['color'] ?? 'primary');
+        $url = trim($_POST['url'] ?? '');
 
         if (!$title) {
             echo json_encode(['error' => 'Title is required']);
             exit;
         }
 
-        $stmt = $pdo->prepare("INSERT INTO resources (branch, sem, type, title, by_author, file_size, color) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$branch, $sem, $type, $title, $by, $size, $color]);
+        $stmt = $pdo->prepare("INSERT INTO resources (branch, sem, type, title, by_author, file_size, color, download_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$branch, $sem, $type, $title, $by, $size, $color, $url ?: null]);
         echo json_encode(['success' => true, 'message' => 'Resource added to database']);
         break;
 
@@ -48,14 +49,15 @@ switch ($action) {
         $type = trim($_POST['type'] ?? 'Notes');
         $by = trim($_POST['by'] ?? 'Yaswant Admin');
         $size = trim($_POST['size'] ?? '2.0 MB');
+        $url = trim($_POST['url'] ?? '');
 
         if (!$id || !$title) {
             echo json_encode(['error' => 'Invalid resource parameters']);
             exit;
         }
 
-        $stmt = $pdo->prepare("UPDATE resources SET title = ?, branch = ?, sem = ?, type = ?, by_author = ?, file_size = ? WHERE id = ?");
-        $stmt->execute([$title, $branch, $sem, $type, $by, $size, $id]);
+        $stmt = $pdo->prepare("UPDATE resources SET title = ?, branch = ?, sem = ?, type = ?, by_author = ?, file_size = ?, download_url = ? WHERE id = ?");
+        $stmt->execute([$title, $branch, $sem, $type, $by, $size, $url ?: null, $id]);
         echo json_encode(['success' => true, 'message' => 'Resource updated successfully']);
         break;
 

@@ -39,6 +39,7 @@ if ($isLocal) {
     define('URL_DASHBOARD',   SITE_URL . '/dashboard.php');
     define('URL_SEARCH',      SITE_URL . '/search.php');
     define('URL_IMAGE',       SITE_URL . '/image/index.php');
+    define('URL_ADMIN',       SITE_URL . '/admin.php');
 } else {
     define('URL_HOME',        'https://yaswant.co.in');
     define('URL_RESUME',      'https://resume.yaswant.co.in');
@@ -51,6 +52,7 @@ if ($isLocal) {
     define('URL_DASHBOARD',   'https://yaswant.co.in/dashboard.php');
     define('URL_SEARCH',      'https://yaswant.co.in/search.php');
     define('URL_IMAGE',       'https://image.yaswant.co.in');
+    define('URL_ADMIN',       'https://yaswant.co.in/admin.php');
 }
 
 // ─── Subdomain Detection ──────────────────────────────────────────────────────

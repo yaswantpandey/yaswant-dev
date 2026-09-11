@@ -8,7 +8,7 @@ if (!function_exists('get_resources')) {
     {
         try {
             $pdo = get_db();
-            $stmt = $pdo->query("SELECT id, branch, sem, type, title, by_author AS `by`, file_size AS size, color FROM resources ORDER BY id DESC");
+            $stmt = $pdo->query("SELECT id, branch, sem, type, title, by_author AS `by`, file_size AS size, color, download_url AS url FROM resources ORDER BY id DESC");
             return $stmt->fetchAll();
         } catch (Exception $e) {
             error_log("Error fetching resources: " . $e->getMessage());

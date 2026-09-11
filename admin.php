@@ -221,9 +221,9 @@ foreach($hh as $h): ?>
       </div>
 <?php
 $feed=array_merge(
-  array_slice(array_map(fn($r)=>['l'=>'Resource: '.$r['title'],'icon'=>'folder_open','c'=>'bg-emerald-500/15 text-emerald-400','t'=>$r['added']??'—'],$resources),0,2),
-  array_slice(array_map(fn($j)=>['l'=>'Internship: '.$j['title'],'icon'=>'work','c'=>'bg-indigo-500/15 text-indigo-400','t'=>$j['added']??'—'],$jobs),0,2),
-  array_slice(array_map(fn($a)=>['l'=>'Blog: '.$a['title'],'icon'=>'article','c'=>'bg-purple-500/15 text-purple-400','t'=>$a['date']??'—'],$articles),0,2)
+  array_slice(array_map(fn($r)=>['l'=>'Resource: '.$r['title'],'icon'=>'folder_open','c'=>'bg-emerald-500/15 text-emerald-400','t'=>'#'.$r['id']],$resources),0,2),
+  array_slice(array_map(fn($j)=>['l'=>'Internship: '.$j['title'],'icon'=>'work','c'=>'bg-indigo-500/15 text-indigo-400','t'=>$j['company']??'—'],$jobs),0,2),
+  array_slice(array_map(fn($a)=>['l'=>'Blog: '.$a['title'],'icon'=>'article','c'=>'bg-purple-500/15 text-purple-400','t'=>$a['created_at']??'—'],$articles),0,2)
 );
 if(empty($feed)): ?>
       <div class="flex-1 flex items-center justify-center text-center text-zinc-600">
@@ -274,7 +274,7 @@ foreach($bars as $b): $pct=round(($b['v']/$total)*100); ?>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
 <?php
-$domains=[['l'=>'Main','url'=>URL_MAIN,'icon'=>'home','c'=>'emerald'],['l'=>'Tools','url'=>URL_TOOLS,'icon'=>'build','c'=>'cyan'],['l'=>'Resume','url'=>URL_RESUME,'icon'=>'description','c'=>'indigo'],['l'=>'Resources','url'=>URL_RESOURCES,'icon'=>'folder_open','c'=>'amber'],['l'=>'Projects','url'=>URL_PROJECT,'icon'=>'folder_special','c'=>'purple']];
+$domains=[['l'=>'Main','url'=>URL_HOME,'icon'=>'home','c'=>'emerald'],['l'=>'Tools','url'=>URL_TOOLS,'icon'=>'build','c'=>'cyan'],['l'=>'Resume','url'=>URL_RESUME,'icon'=>'description','c'=>'indigo'],['l'=>'Resources','url'=>URL_RESOURCES,'icon'=>'folder_open','c'=>'amber'],['l'=>'Projects','url'=>URL_PROJECT,'icon'=>'folder_special','c'=>'purple']];
 $dc=['emerald'=>'border-emerald-500/30 hover:border-emerald-500 text-emerald-400','cyan'=>'border-cyan-500/30 hover:border-cyan-500 text-cyan-400','indigo'=>'border-indigo-500/30 hover:border-indigo-500 text-indigo-400','amber'=>'border-amber-500/30 hover:border-amber-500 text-amber-400','purple'=>'border-purple-500/30 hover:border-purple-500 text-purple-400'];
 foreach($domains as $d): ?>
       <a href="<?=$d['url']?>" target="_blank" rel="noopener"
@@ -581,7 +581,7 @@ foreach($diags as $d): ?>
       <span class="material-symbols-outlined text-cyan-400 text-[16px]">domain</span> Subdomain Routing
     </div>
 <?php
-$subs=[['l'=>'Main','url'=>URL_MAIN],['l'=>'Tools','url'=>URL_TOOLS],['l'=>'Projects','url'=>URL_PROJECT],['l'=>'Resume','url'=>URL_RESUME],['l'=>'Resources','url'=>URL_RESOURCES],['l'=>'Courses','url'=>URL_COURSES],['l'=>'Internships','url'=>URL_INTERNSHIPS],['l'=>'Blog','url'=>URL_BLOG]];
+$subs=[['l'=>'Main','url'=>URL_HOME],['l'=>'Tools','url'=>URL_TOOLS],['l'=>'Projects','url'=>URL_PROJECT],['l'=>'Resume','url'=>URL_RESUME],['l'=>'Resources','url'=>URL_RESOURCES],['l'=>'Courses','url'=>URL_COURSES],['l'=>'Internships','url'=>URL_INTERNSHIPS],['l'=>'Blog','url'=>URL_BLOG]];
 foreach($subs as $sd): ?>
     <div class="flex justify-between items-center py-2 border-b border-zinc-800/60 last:border-0">
       <span class="text-xs text-zinc-500 font-mono"><?=$sd['l']?></span>
@@ -638,6 +638,10 @@ foreach($subs as $sd): ?>
         <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Author</label>
           <input id="res-by" name="by" value="Yaswant Admin" class="w-full bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
       </div>
+      <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Google Drive / PDF URL</label>
+        <input id="res-url" name="url" type="url" placeholder="https://drive.google.com/..." class="w-full bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
+      <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">File Size (optional)</label>
+        <input id="res-size" name="size" placeholder="e.g. 2.5 MB" value="2.0 MB" class="w-full bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
       <button type="submit" id="res-btn-submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-2.5 rounded-xl font-mono font-bold text-xs transition-all active:scale-95">Save Resource</button>
     </form>
   </div>
@@ -753,6 +757,28 @@ foreach($subs as $sd): ?>
   document.addEventListener('DOMContentLoaded',function(){
     document.querySelectorAll('.progress-bar').forEach(function(b){const w=b.style.width;b.style.width='0';setTimeout(function(){b.style.width=w;},100);});
   });
+
+  /* ─── Toast Notification ─── */
+  function showToast(msg, type='success') {
+    const old = document.getElementById('admin-toast');
+    if (old) old.remove();
+    const t = document.createElement('div');
+    t.id = 'admin-toast';
+    const colors = type === 'success'
+      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+      : 'bg-red-500/20 border-red-500/40 text-red-300';
+    const icon = type === 'success' ? 'check_circle' : 'error';
+    t.className = `fixed top-20 right-4 z-[999] flex items-center gap-2.5 px-4 py-3 rounded-xl border font-mono text-xs shadow-2xl backdrop-blur-sm transition-all ${colors}`;
+    t.style.cssText = 'animation: slideInRight .3s ease; max-width: 320px;';
+    t.innerHTML = `<span class="material-symbols-outlined text-[17px]">${icon}</span><span>${msg}</span>`;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; setTimeout(() => t.remove(), 300); }, 3500);
+  }
+  /* inject keyframe */
+  const _ks = document.createElement('style');
+  _ks.textContent = '@keyframes slideInRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}';
+  document.head.appendChild(_ks);
+
   function openModal(id){const e=document.getElementById(id);if(e){e.classList.remove('hidden');e.classList.add('flex');}}
   function closeModal(id){const e=document.getElementById(id);if(e){e.classList.add('hidden');e.classList.remove('flex');}}
   document.addEventListener('keydown',function(e){if(e.key==='Escape')['modal-add-resource','modal-add-course','modal-add-job','modal-add-article'].forEach(closeModal);});
@@ -827,8 +853,21 @@ foreach($subs as $sd): ?>
     const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
     a.download='subscribers_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+    showToast('Subscribers exported as CSV!');
   }
-  function editResource(r){document.getElementById('res-modal-title').innerText='Edit Study Resource';document.getElementById('res-id').value=r.id;document.getElementById('res-title').value=r.title;document.getElementById('res-branch').value=r.branch||'CS';document.getElementById('res-sem').value=r.sem||'S1';document.getElementById('res-type').value=r.type||'Notes';document.getElementById('res-by').value=r.by||'Yaswant Admin';document.getElementById('res-btn-submit').innerText='Update Resource';openModal('modal-add-resource');}
+  function editResource(r){
+    document.getElementById('res-modal-title').innerText='Edit Study Resource';
+    document.getElementById('res-id').value=r.id;
+    document.getElementById('res-title').value=r.title;
+    document.getElementById('res-branch').value=r.branch||'CS';
+    document.getElementById('res-sem').value=r.sem||'S1';
+    document.getElementById('res-type').value=r.type||'Notes';
+    document.getElementById('res-by').value=r.by||'Yaswant Admin';
+    document.getElementById('res-url').value=r.url||'';
+    document.getElementById('res-size').value=r.size||'2.0 MB';
+    document.getElementById('res-btn-submit').innerText='Update Resource';
+    openModal('modal-add-resource');
+  }
   function editCourse(c){document.getElementById('course-modal-title').innerText='Edit Course Module';document.getElementById('course-id').value=c.id;document.getElementById('course-title').value=c.title;document.getElementById('course-tag').value=c.tag||'General';document.getElementById('course-lessons').value=c.lessons||20;document.getElementById('course-level').value=c.level||'Beginner';document.getElementById('course-btn-submit').innerText='Update Course';openModal('modal-add-course');}
   function editJob(j){document.getElementById('job-modal-title').innerText='Edit Internship Role';document.getElementById('job-id').value=j.id;document.getElementById('job-title').value=j.title;document.getElementById('job-company').value=j.company;document.getElementById('job-location').value=j.location||'Remote';document.getElementById('job-pay').value=j.pay||'15,000/month';document.getElementById('job-tags').value=Array.isArray(j.tags)?j.tags.join(', '):(j.tags||'');document.getElementById('job-link').value=j.link||'';document.getElementById('job-btn-submit').innerText='Update Internship';openModal('modal-add-job');}
   function handleResourceSubmit(e){e.preventDefault();submitAdminForm(e.target,document.getElementById('res-id').value?'edit_resource':'add_resource');}
@@ -838,21 +877,36 @@ foreach($subs as $sd): ?>
   function submitAdminForm(formEl,action){
     const formData=new FormData(formEl);formData.append('action',action);
     const btn=formEl.querySelector('[type=submit]');
-    if(btn){btn.disabled=true;btn.innerText='Saving...';}
+    const origText = btn ? btn.innerText : '';
+    if(btn){btn.disabled=true;btn.innerText='Saving…';}
     fetch('api/admin_action.php',{method:'POST',body:formData})
       .then(r=>r.json()).then(res=>{
-        if(res.success)window.location.reload();
-        else{alert(res.error||'Operation failed');if(btn){btn.disabled=false;btn.innerText='Retry';}}
-      }).catch(function(){alert('Network error. Please try again.');if(btn)btn.disabled=false;});
+        if(res.success){
+          showToast(res.message || 'Saved successfully!');
+          setTimeout(()=>window.location.reload(), 1200);
+        } else {
+          showToast(res.error||'Operation failed','error');
+          if(btn){btn.disabled=false;btn.innerText=origText;}
+        }
+      }).catch(function(){
+        showToast('Network error. Please try again.','error');
+        if(btn){btn.disabled=false;btn.innerText=origText;}
+      });
   }
   function deleteItem(action,id){
     if(!confirm('Permanently delete this item?'))return;
     const f=new FormData();f.append('action',action);f.append('id',id);
-    fetch('api/admin_action.php',{method:'POST',body:f}).then(r=>r.json()).then(res=>{if(res.success)window.location.reload();else alert(res.error||'Delete failed');});
+    fetch('api/admin_action.php',{method:'POST',body:f}).then(r=>r.json()).then(res=>{
+      if(res.success){showToast('Deleted successfully!');setTimeout(()=>window.location.reload(),1000);}
+      else showToast(res.error||'Delete failed','error');
+    });
   }
   function deleteSubscriber(email){
     if(!confirm('Remove subscriber '+email+'?'))return;
     const f=new FormData();f.append('action','delete_subscriber');f.append('email',email);
-    fetch('api/admin_action.php',{method:'POST',body:f}).then(r=>r.json()).then(res=>{if(res.success)window.location.reload();else alert(res.error||'Delete failed');});
+    fetch('api/admin_action.php',{method:'POST',body:f}).then(r=>r.json()).then(res=>{
+      if(res.success){showToast('Subscriber removed');setTimeout(()=>window.location.reload(),1000);}
+      else showToast(res.error||'Delete failed','error');
+    });
   }
 </script>
