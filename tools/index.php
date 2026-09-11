@@ -75,129 +75,298 @@ if ($q) {
   $toolSections = array_filter($toolSections, fn($t) => !empty($t));
 }
 ?>
-<div class="sidebar-push pl-0 lg:pl-72 flex flex-col min-h-screen">
+<style>
+  /* ── Hand-Crafted Technical Dark Theme (Vercel / Linear Aesthetic) ── */
+  .tools-page-wrap {
+    background: #09090b;
+    color: #f4f4f5;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Dot Grid Background */
+  .dot-grid-bg {
+    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Minimalist Product Cards — tool grid */
+  .tool-card {
+    background: rgba(18, 18, 22, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.9rem;
+    transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .tool-card:hover {
+    border-color: rgba(16, 185, 129, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -8px rgba(16, 185, 129, 0.12), 0 4px 12px -4px rgba(0,0,0,0.6);
+  }
+
+  /* Tool icon badge */
+  .tool-icon-badge {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0.65rem;
+    transition: all 0.18s ease;
+  }
+
+  .tool-card:hover .tool-icon-badge {
+    background: #10b981;
+    border-color: #10b981;
+    color: #000 !important;
+  }
+
+  /* Info Card — hero / SEO section */
+  .info-card {
+    background: rgba(18, 18, 22, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 1rem;
+  }
+
+  /* Gradient accent text */
+  .gradient-text {
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 55%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Command/Search bar */
+  .cmd-search {
+    background: #111113;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.75rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .cmd-search:focus-within {
+    border-color: #10b981;
+    box-shadow: 0 0 0 1px #10b981, 0 6px 20px -4px rgba(16,185,129,0.15);
+  }
+
+  /* Category filter pills */
+  .cat-pill {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 9999px;
+    color: #a1a1aa;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .cat-pill:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+
+  .cat-pill.active {
+    background: #10b981;
+    border-color: #10b981;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 0 14px rgba(16,185,129,0.3);
+  }
+
+  /* Section header */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #52525b;
+  }
+
+  /* Accent line separator */
+  .accent-line {
+    height: 1px;
+    background: linear-gradient(to right, rgba(16,185,129,0.3), rgba(255,255,255,0.04), transparent);
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<div class="sidebar-push pl-0 lg:pl-72 flex flex-col min-h-screen tools-page-wrap">
   <?php nexus_sidebar('tools');
   nexus_topbar('tools'); ?>
-  <main id="main-content" role="main" class="flex-1 pt-16 w-full max-w-max-width-content mx-auto p-lg">
-    <div class="flex flex-col w-full gap-2xl">
 
-      <!-- ── Breadcrumbs ─────────────────────────────────────────── -->
-      <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs font-mono text-zinc-400">
-        <a href="<?= URL_HOME ?>" class="hover:text-emerald-400 transition-colors">Home</a>
-        <span class="text-zinc-600">/</span>
-        <span class="text-zinc-300">Cyber & Developer Utilities</span>
+  <main id="main-content" role="main" class="flex-1 pt-16 w-full max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col w-full gap-8 relative dot-grid-bg">
+
+      <!-- Ambient Glow Orbs (subtle) -->
+      <div class="absolute top-0 right-0 w-[520px] h-[520px] rounded-full blur-[180px] pointer-events-none z-0 opacity-60"
+        style="background: radial-gradient(circle, rgba(16,185,129,0.10) 0%, transparent 70%);"></div>
+      <div class="absolute bottom-40 left-0 w-96 h-96 rounded-full blur-[150px] pointer-events-none z-0 opacity-50"
+        style="background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);"></div>
+
+      <!-- ── Breadcrumbs ── -->
+      <nav aria-label="Breadcrumb" class="relative z-10 flex items-center gap-1.5 text-[11px] font-mono text-zinc-500">
+        <a href="<?= URL_HOME ?>" class="hover:text-zinc-300 transition-colors">yaswant.co.in</a>
+        <span>/</span>
+        <span class="text-zinc-300">tools</span>
       </nav>
 
-      <!-- Header & Search -->
-      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-md bg-surface-container-high rounded-2xl p-4 sm:p-6 md:p-8 border border-outline-variant/20 shadow-lg">
-        <div>
-          <div class="inline-flex items-center gap-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider mb-xs border border-emerald-500/20">
-            <span class="material-symbols-outlined text-[16px]">terminal</span> Live Interactive Security Tools
+      <!-- ── Hero Header ── -->
+      <section class="relative z-10">
+        <div class="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <!-- Status badge -->
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-white/10 bg-white/[0.03] text-[10px] font-mono uppercase tracking-widest text-zinc-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              100% Client-Side • Zero Data Harvesting • WebCrypto API
+            </div>
+
+            <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+              Developer &amp; <span class="gradient-text">Cyber Security</span><br class="hidden sm:block"> Utilities
+            </h1>
+            <p class="text-sm text-zinc-400 font-light leading-relaxed max-w-xl">
+              <?= array_sum(array_map('count', $toolSections)) ?>+ browser-based tools — password strength, SIEM log analysis, YARA scanning, AES-256 encryption, CIDR calculator, REST API tester and more.
+            </p>
           </div>
-          <h1 class="font-display-lg text-headline-md md:text-display-lg-mobile text-on-surface">Developer & Cyber Security Tools</h1>
-          <p class="font-body-md text-xs sm:text-sm text-on-surface-variant max-w-2xl mt-1">Client-side security tools, SIEM log analyzers, rate limiters, packet sniffer simulators, YARA malware scanners, firewall simulators, SQLi auditors, 2FA engines, and dev utilities engineered for zero-knowledge privacy.</p>
+
+          <!-- Search -->
+          <form method="GET" class="relative w-full lg:w-72 shrink-0" role="search" aria-label="Search tools"
+                onsubmit="event.preventDefault(); applyToolFilters();">
+            <label for="tools-search" class="sr-only">Search tools</label>
+            <div class="cmd-search flex items-center gap-2 px-3 py-2.5">
+              <span class="material-symbols-outlined text-zinc-500 text-[18px] shrink-0" aria-hidden="true">search</span>
+              <input id="tools-search" name="q" value="<?= htmlspecialchars($q) ?>"
+                class="flex-1 bg-transparent text-white text-xs font-mono placeholder:text-zinc-600 outline-none"
+                placeholder="Search <?= array_sum(array_map('count', $toolSections)) ?>+ tools…" />
+              <kbd class="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 text-[9px] font-mono text-zinc-600">⌘K</kbd>
+            </div>
+          </form>
         </div>
-        <form method="GET" class="relative w-full md:w-80" role="search" aria-label="Search tools" onsubmit="event.preventDefault(); applyToolFilters();">
-          <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline" aria-hidden="true">search</span>
-          <label for="tools-search" class="sr-only">Search tools</label>
-          <input id="tools-search" name="q" value="<?= htmlspecialchars($q) ?>"
-            class="w-full bg-surface-container-lowest text-on-surface font-mono py-2.5 pl-10 pr-md rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-xs placeholder:text-outline"
-            placeholder="Live search 30+ tools…" />
-        </form>
+      </section>
+
+      <!-- ── Category Filter Pills ── -->
+      <div class="relative z-10 w-full overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-2 min-w-max" role="tablist" aria-label="Tool Categories">
+          <button type="button" id="chip-all" onclick="filterTools('all', this)"
+            class="cat-pill active px-3.5 py-1.5 text-[11px] flex items-center gap-1.5"
+            role="tab" aria-selected="true">
+            <span class="material-symbols-outlined text-[14px]">apps</span>
+            All (<?= array_sum(array_map('count', $toolSections)) ?>)
+          </button>
+          <button type="button" id="chip-cyber" onclick="filterTools('cyber', this)"
+            class="cat-pill px-3.5 py-1.5 text-[11px] flex items-center gap-1.5"
+            role="tab" aria-selected="false">
+            <span class="material-symbols-outlined text-[14px] text-emerald-400">shield</span>
+            Cyber Security
+          </button>
+          <button type="button" id="chip-dev" onclick="filterTools('dev', this)"
+            class="cat-pill px-3.5 py-1.5 text-[11px] flex items-center gap-1.5"
+            role="tab" aria-selected="false">
+            <span class="material-symbols-outlined text-[14px] text-cyan-400">code</span>
+            Dev Utilities
+          </button>
+          <button type="button" id="chip-image" onclick="filterTools('image', this)"
+            class="cat-pill px-3.5 py-1.5 text-[11px] flex items-center gap-1.5"
+            role="tab" aria-selected="false">
+            <span class="material-symbols-outlined text-[14px] text-amber-400">image</span>
+            Image Suite
+          </button>
+          <button type="button" id="chip-projects" onclick="filterTools('projects', this)"
+            class="cat-pill px-3.5 py-1.5 text-[11px] flex items-center gap-1.5"
+            role="tab" aria-selected="false">
+            <span class="material-symbols-outlined text-[14px] text-violet-400">folder_special</span>
+            Projects &amp; Labs
+          </button>
+        </div>
       </div>
 
-      <!-- Mobile-First App Category Filter Pills -->
-      <div class="w-full overflow-x-auto no-scrollbar pb-1 -mt-2">
-        <div class="flex items-center gap-2 min-w-max px-1" role="tablist" aria-label="Tool Categories">
-          <button type="button" onclick="filterTools('all', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-bold transition-all flex items-center gap-1.5 bg-emerald-500 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)] active:scale-95" role="tab" aria-selected="true">
-            <span class="material-symbols-outlined text-[16px]">grid_view</span>
-            <span>All Tools (<?= array_sum(array_map('count', $toolSections)) ?>)</span>
-          </button>
-          <button type="button" onclick="filterTools('cyber', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1.5 bg-surface-container-high border border-outline-variant/30 text-zinc-300 hover:text-white hover:border-emerald-500/40 active:scale-95" role="tab" aria-selected="false">
-            <span class="material-symbols-outlined text-[16px] text-emerald-400">shield</span>
-            <span>Cyber Security (<?= count($toolSections['Cyber Security Tools & Calculators'] ?? []) ?>)</span>
-          </button>
-          <button type="button" onclick="filterTools('dev', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1.5 bg-surface-container-high border border-outline-variant/30 text-zinc-300 hover:text-white hover:border-cyan-500/40 active:scale-95" role="tab" aria-selected="false">
-            <span class="material-symbols-outlined text-[16px] text-cyan-400">code</span>
-            <span>Dev Utilities (<?= count($toolSections['Developer & Engineering Utilities'] ?? []) ?>)</span>
-          </button>
-          <button type="button" onclick="filterTools('image', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1.5 bg-surface-container-high border border-outline-variant/30 text-zinc-300 hover:text-white hover:border-amber-500/40 active:scale-95" role="tab" aria-selected="false">
-            <span class="material-symbols-outlined text-[16px] text-amber-400">image</span>
-            <span>Image Suite (<?= count($toolSections['Image Editing Tools (image.yaswant.co.in)'] ?? []) ?>)</span>
-          </button>
-          <button type="button" onclick="filterTools('projects', this)" class="category-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all flex items-center gap-1.5 bg-surface-container-high border border-outline-variant/30 text-zinc-300 hover:text-white hover:border-indigo-500/40 active:scale-95" role="tab" aria-selected="false">
-            <span class="material-symbols-outlined text-[16px] text-indigo-400">folder_special</span>
-            <span>Projects & Labs (<?= count($toolSections['Career & Projects Showcase'] ?? []) ?>)</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Live Instant Empty State -->
-      <div id="instant-empty-state" class="hidden text-center py-2xl text-on-surface-variant font-mono">
-        <span class="material-symbols-outlined text-[56px] text-outline mb-md block" aria-hidden="true">search_off</span>
-        <p class="text-sm">No utilities found matching your criteria.</p>
-        <button type="button" onclick="document.getElementById('tools-search').value=''; filterTools('all', document.querySelector('.category-chip'));" class="mt-3 inline-flex items-center gap-1.5 text-xs font-mono text-emerald-400 hover:underline">
-          <span class="material-symbols-outlined text-[14px]">refresh</span> Reset all filters
+      <!-- Live Empty State -->
+      <div id="instant-empty-state" class="hidden relative z-10 text-center py-20">
+        <span class="material-symbols-outlined text-[52px] text-zinc-700 mb-3 block" aria-hidden="true">search_off</span>
+        <p class="text-sm text-zinc-500 font-mono">No utilities match your search.</p>
+        <button type="button"
+          onclick="document.getElementById('tools-search').value=''; document.querySelectorAll('.cat-pill').forEach(c=>c.classList.remove('active')); document.getElementById('chip-all').classList.add('active'); filterTools('all', null);"
+          class="mt-4 inline-flex items-center gap-1.5 text-xs font-mono text-emerald-400 hover:text-emerald-300 transition-colors">
+          <span class="material-symbols-outlined text-[14px]">refresh</span> Reset filters
         </button>
       </div>
 
-      <!-- Tools Grid -->
+      <!-- ── Tools Grid ── -->
       <?php if (empty($toolSections)): ?>
-        <div class="text-center py-2xl text-on-surface-variant font-mono">
-          <span class="material-symbols-outlined text-[64px] text-outline mb-md block" aria-hidden="true">search_off</span>
-          No tools found for "<?= htmlspecialchars($q) ?>". <a href="<?= URL_TOOLS ?>" class="text-emerald-400 hover:underline">Clear search</a>
+        <div class="relative z-10 text-center py-20">
+          <span class="material-symbols-outlined text-[56px] text-zinc-700 mb-3 block" aria-hidden="true">search_off</span>
+          <p class="text-sm text-zinc-500 font-mono">No results for "<?= htmlspecialchars($q) ?>".</p>
+          <a href="<?= URL_TOOLS ?>" class="mt-3 inline-flex items-center gap-1 text-xs font-mono text-emerald-400 hover:underline">Clear search</a>
         </div>
       <?php else: ?>
         <?php
         $catSlugs = [
           'Cyber Security Tools & Calculators' => 'cyber',
-          'Developer & Engineering Utilities' => 'dev',
+          'Developer & Engineering Utilities'  => 'dev',
           'Image Editing Tools (image.yaswant.co.in)' => 'image',
-          'Career & Projects Showcase' => 'projects',
+          'Career & Projects Showcase'         => 'projects',
+        ];
+        $catIcons = [
+          'cyber'    => 'shield',
+          'dev'      => 'code',
+          'image'    => 'image',
+          'projects' => 'folder_special',
         ];
         ?>
-        <div id="tools-container" class="space-y-2xl">
-          <?php foreach ($toolSections as $section => $tools): 
-            $secCat = $catSlugs[$section] ?? 'cyber';
+        <div id="tools-container" class="relative z-10 space-y-12">
+          <?php foreach ($toolSections as $section => $tools):
+            $secCat  = $catSlugs[$section] ?? 'cyber';
+            $secIcon = $catIcons[$secCat]  ?? 'apps';
           ?>
-            <section class="tool-section-block" data-category="<?= $secCat ?>" aria-labelledby="section-<?= preg_replace('/\W+/', '-', strtolower($section)) ?>">
-              <div class="flex items-center gap-md mb-lg">
-                <h2 id="section-<?= preg_replace('/\W+/', '-', strtolower($section)) ?>" class="font-headline-md text-lg font-bold text-on-surface flex items-center gap-xs">
-                  <span class="material-symbols-outlined text-emerald-400">shield</span> <?= htmlspecialchars($section) ?>
-                </h2>
-                <div class="flex-1 h-px bg-outline-variant/20" aria-hidden="true"></div>
+            <section class="tool-section-block" data-category="<?= $secCat ?>"
+              aria-labelledby="section-<?= preg_replace('/\W+/', '-', strtolower($section)) ?>">
+
+              <!-- Section header -->
+              <div class="flex items-center gap-3 mb-6">
+                <span class="section-label"><?= htmlspecialchars($section) ?></span>
+                <div class="flex-1 accent-line" aria-hidden="true"></div>
+                <span class="section-label"><?= count($tools) ?> tools</span>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+
+              <!-- Cards grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 <?php foreach ($tools as $t):
-                  $href = isset($t['file']) ? URL_TOOLS . '/' . $t['file'] : ($t['href'] ?? 'javascript:void(0)');
+                  $href  = isset($t['file']) ? URL_TOOLS . '/' . $t['file'] : ($t['href'] ?? 'javascript:void(0)');
                   $click = isset($t['modal']) ? "openToolModal('{$t['modal']}')" : '';
-                  ?>
-                  <div class="tool-card group relative bg-surface-container hover:bg-surface-container-high border border-outline-variant/20 hover:border-emerald-400/40 transition-all rounded-2xl p-4 sm:p-5 overflow-hidden flex flex-col justify-between min-h-[148px] shadow-md hover:shadow-xl active:scale-[0.98]"
+                ?>
+                  <div class="tool-card group relative p-4 flex flex-col gap-3 min-h-[148px]"
                        data-category="<?= $secCat ?>"
                        data-name="<?= htmlspecialchars(strtolower($t['name'])) ?>"
                        data-desc="<?= htmlspecialchars(strtolower($t['desc'])) ?>">
-                    <div class="flex justify-between items-start z-10 gap-2">
-                      <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-black transition-colors shadow-sm shrink-0">
-                        <span class="material-symbols-outlined text-[22px]" aria-hidden="true"><?= $t['icon'] ?></span>
+
+                    <!-- Top row: icon + action -->
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="tool-icon-badge w-9 h-9 flex items-center justify-center text-emerald-400 shrink-0">
+                        <span class="material-symbols-outlined text-[20px]" aria-hidden="true"><?= $t['icon'] ?></span>
                       </div>
-                      <?php if (isset($t['file'])): ?>
-                        <div class="flex items-center gap-1.5">
-                          <button type="button" onclick="<?= $click ?>" class="text-[10px] font-mono uppercase bg-emerald-500/15 text-emerald-400 px-2.5 py-1 rounded-lg border border-emerald-500/30 hover:bg-emerald-500 hover:text-black transition-colors active:scale-95">Modal</button>
-                          <a href="<?= $href ?>" class="w-7 h-7 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-outline hover:text-emerald-400 flex items-center justify-center transition-colors active:scale-95" title="Open Dedicated Page">
-                            <span class="material-symbols-outlined text-[15px]">open_in_new</span>
+
+                      <?php if (isset($t['file']) && isset($t['modal'])): ?>
+                        <div class="flex items-center gap-1">
+                          <button type="button" onclick="<?= $click ?>"
+                            class="text-[9px] font-mono uppercase tracking-wide bg-white/[0.05] border border-white/10 text-zinc-400 px-2 py-1 rounded-md hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all active:scale-95">Try</button>
+                          <a href="<?= $href ?>"
+                            class="w-6 h-6 flex items-center justify-center rounded-md bg-white/[0.04] border border-white/10 text-zinc-500 hover:text-emerald-400 hover:border-emerald-500/40 transition-all"
+                            title="Open dedicated page" aria-label="Open in full page">
+                            <span class="material-symbols-outlined text-[13px]">open_in_new</span>
                           </a>
                         </div>
                       <?php else: ?>
-                        <a href="<?= $href ?>" class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg hover:bg-emerald-500 hover:text-black flex items-center gap-1 transition-all active:scale-95">
-                          Launch <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+                        <a href="<?= $href ?>"
+                          class="inline-flex items-center gap-1 text-[10px] font-mono text-zinc-400 bg-white/[0.04] border border-white/10 px-2 py-1 rounded-md hover:text-emerald-400 hover:border-emerald-500/40 transition-all active:scale-95">
+                          Launch <span class="material-symbols-outlined text-[12px]">open_in_new</span>
                         </a>
                       <?php endif; ?>
                     </div>
-                    <div class="z-10 mt-2">
-                      <h3 class="font-headline-md text-sm font-bold text-on-surface mb-1 group-hover:text-emerald-400 transition-colors">
+
+                    <!-- Tool info -->
+                    <div>
+                      <h3 class="text-[13px] font-semibold text-zinc-100 mb-1 group-hover:text-emerald-400 transition-colors leading-snug">
                         <a href="<?= $href ?>" class="hover:underline"><?= htmlspecialchars($t['name']) ?></a>
                       </h3>
-                      <p class="font-body-md text-xs leading-relaxed text-on-surface-variant line-clamp-2"><?= htmlspecialchars($t['desc']) ?></p>
+                      <p class="text-[11px] leading-relaxed text-zinc-500 line-clamp-2"><?= htmlspecialchars($t['desc']) ?></p>
                     </div>
                   </div>
                 <?php endforeach; ?>
@@ -207,72 +376,73 @@ if ($q) {
         </div>
       <?php endif; ?>
 
-      <!-- ── On-Page SEO Guide & FAQ Section ──────────────────────── -->
-      <section class="bg-zinc-950 border border-zinc-800/80 rounded-2xl p-6 md:p-10 shadow-2xl space-y-8 mt-4">
-        
-        <div>
-          <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">Zero-Knowledge Architecture</span>
-          <h2 class="text-xl md:text-3xl font-black text-white mt-3">
-            Why Use <span class="gradient-text">Yaswant Dev Security & Developer Tools</span>?
-          </h2>
-          <p class="text-xs md:text-sm text-zinc-400 font-light mt-2 leading-relaxed max-w-3xl">
-            Unlike traditional web tools that send your sensitive passwords, API keys, and private logs to remote cloud servers, <strong>Yaswant Dev Developer Utilities</strong> are engineered with a strict <strong>zero-knowledge client-side runtime</strong>.
-          </p>
+      <!-- ── Why Use These Tools — Architecture Callout ── -->
+      <section class="relative z-10 mt-2">
+        <!-- Section label -->
+        <div class="flex items-center gap-3 mb-6">
+          <span class="section-label">Zero-Knowledge Architecture</span>
+          <div class="flex-1 accent-line" aria-hidden="true"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-zinc-900/60 p-5 rounded-xl border border-zinc-800">
-            <span class="material-symbols-outlined text-emerald-400 text-2xl mb-2">enhanced_encryption</span>
-            <h3 class="text-sm font-bold text-white mb-1">100% Client-Side WebCrypto</h3>
-            <p class="text-xs text-zinc-400 font-light leading-relaxed">
-              AES-256-GCM encryption, SHA-256 hashing, and CSPRNG random generation run directly on your browser via the native W3C Web Crypto API.
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="info-card p-5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3">
+              <span class="material-symbols-outlined text-emerald-400 text-[18px]">enhanced_encryption</span>
+            </div>
+            <h3 class="text-[13px] font-semibold text-zinc-100 mb-1.5">100% Client-Side WebCrypto</h3>
+            <p class="text-[11px] text-zinc-500 leading-relaxed">
+              AES-256-GCM, SHA-256, and CSPRNG run directly in your browser via the native W3C Web Crypto API. No data ever leaves your device.
             </p>
           </div>
-          <div class="bg-zinc-900/60 p-5 rounded-xl border border-zinc-800">
-            <span class="material-symbols-outlined text-cyan-400 text-2xl mb-2">speed</span>
-            <h3 class="text-sm font-bold text-white mb-1">Instant Zero-Latency Execution</h3>
-            <p class="text-xs text-zinc-400 font-light leading-relaxed">
-              No network roundtrips or server queues. Formats JSON, calculates CIDR subnets, and tests password entropy in under 1 millisecond.
-            </p>
-          </div>
-          <div class="bg-zinc-900/60 p-5 rounded-xl border border-zinc-800">
-            <span class="material-symbols-outlined text-indigo-400 text-2xl mb-2">shield</span>
-            <h3 class="text-sm font-bold text-white mb-1">Security & Pentest Simulators</h3>
-            <p class="text-xs text-zinc-400 font-light leading-relaxed">
-              Designed for cybersecurity researchers: stateful firewall rules, SQLi sanitization, YARA signatures, and SIEM auth.log threat analysis.
-            </p>
-          </div>
-        </div>
 
-        <!-- FAQ Accordions -->
-        <div class="space-y-4 pt-6 border-t border-zinc-800">
-          <h3 class="text-base font-bold text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-emerald-400">help</span> Frequently Asked Questions
-          </h3>
-          
-          <div class="space-y-3">
-            <details class="bg-zinc-900/80 rounded-xl p-4 border border-zinc-800/80 cursor-pointer group">
-              <summary class="text-xs md:text-sm font-bold text-white group-hover:text-emerald-400 transition-colors flex items-center justify-between">
-                Are these cyber security tools safe to use on confidential data?
-                <span class="material-symbols-outlined text-zinc-500 text-sm group-open:rotate-180 transition-transform">expand_more</span>
-              </summary>
-              <p class="text-xs text-zinc-400 font-light mt-3 leading-relaxed">
-                Yes. Every single tool runs locally in your browser sandbox using pure JavaScript and Web Workers. No network requests are made with your passwords, keys, or logs.
-              </p>
-            </details>
+          <div class="info-card p-5">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3">
+              <span class="material-symbols-outlined text-cyan-400 text-[18px]">speed</span>
+            </div>
+            <h3 class="text-[13px] font-semibold text-zinc-100 mb-1.5">Zero-Latency Execution</h3>
+            <p class="text-[11px] text-zinc-500 leading-relaxed">
+              No server round-trips. JSON formatting, CIDR calculations, and entropy scoring complete in under 1 millisecond.
+            </p>
+          </div>
 
-            <details class="bg-zinc-900/80 rounded-xl p-4 border border-zinc-800/80 cursor-pointer group">
-              <summary class="text-xs md:text-sm font-bold text-white group-hover:text-emerald-400 transition-colors flex items-center justify-between">
-                Can I use these tools for engineering assignments and security audits?
-                <span class="material-symbols-outlined text-zinc-500 text-sm group-open:rotate-180 transition-transform">expand_more</span>
-              </summary>
-              <p class="text-xs text-zinc-400 font-light mt-3 leading-relaxed">
-                Absolutely. All tools, GPA calculators, CIDR calculators, and SQLi PDO converters are 100% free for students, developers, and security auditors.
-              </p>
-            </details>
+          <div class="info-card p-5">
+            <div class="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-3">
+              <span class="material-symbols-outlined text-violet-400 text-[18px]">manage_search</span>
+            </div>
+            <h3 class="text-[13px] font-semibold text-zinc-100 mb-1.5">Pentest Simulators</h3>
+            <p class="text-[11px] text-zinc-500 leading-relaxed">
+              Built for security researchers: stateful firewall rules, SQLi PDO converter, YARA signatures, and SIEM auth.log analysis.
+            </p>
           </div>
         </div>
 
+        <!-- FAQ -->
+        <div class="mt-6 space-y-2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="section-label">FAQ</span>
+            <div class="flex-1 accent-line" aria-hidden="true"></div>
+          </div>
+
+          <details class="info-card px-4 py-3 cursor-pointer group">
+            <summary class="text-[12px] font-semibold text-zinc-300 group-hover:text-emerald-400 transition-colors flex items-center justify-between select-none">
+              Are these tools safe to use with confidential data?
+              <span class="material-symbols-outlined text-zinc-600 text-[16px] group-open:rotate-180 transition-transform shrink-0">expand_more</span>
+            </summary>
+            <p class="text-[11px] text-zinc-500 leading-relaxed mt-3 font-light">
+              Yes. Every tool runs locally in your browser sandbox using JavaScript. No network requests are made with your passwords, keys, or log data.
+            </p>
+          </details>
+
+          <details class="info-card px-4 py-3 cursor-pointer group">
+            <summary class="text-[12px] font-semibold text-zinc-300 group-hover:text-emerald-400 transition-colors flex items-center justify-between select-none">
+              Can I use these for engineering assignments and security audits?
+              <span class="material-symbols-outlined text-zinc-600 text-[16px] group-open:rotate-180 transition-transform shrink-0">expand_more</span>
+            </summary>
+            <p class="text-[11px] text-zinc-500 leading-relaxed mt-3 font-light">
+              Absolutely. GPA calculators, CIDR tools, and SQLi PDO converters are 100% free for students, developers, and security auditors.
+            </p>
+          </details>
+        </div>
       </section>
 
     </div>
@@ -834,14 +1004,13 @@ if ($q) {
 
   function filterTools(cat, btn) {
     activeToolCat = cat;
-    document.querySelectorAll('.category-chip').forEach(c => {
-      c.classList.remove('bg-emerald-500', 'text-black', 'font-bold', 'shadow-[0_0_12px_rgba(16,185,129,0.3)]');
-      c.classList.add('bg-surface-container-high', 'border', 'border-outline-variant/30', 'text-zinc-300');
+    // Update pill styles
+    document.querySelectorAll('.cat-pill').forEach(c => {
+      c.classList.remove('active');
       c.setAttribute('aria-selected', 'false');
     });
     if (btn) {
-      btn.classList.add('bg-emerald-500', 'text-black', 'font-bold', 'shadow-[0_0_12px_rgba(16,185,129,0.3)]');
-      btn.classList.remove('bg-surface-container-high', 'border', 'border-outline-variant/30', 'text-zinc-300');
+      btn.classList.add('active');
       btn.setAttribute('aria-selected', 'true');
     }
     applyToolFilters();
@@ -852,18 +1021,16 @@ if ($q) {
     let visibleTotal = 0;
 
     document.querySelectorAll('.tool-section-block').forEach(sec => {
-      const secCat = sec.getAttribute('data-category');
       let visibleInSection = 0;
-
       sec.querySelectorAll('.tool-card').forEach(card => {
-        const cCat = card.getAttribute('data-category');
+        const cCat  = card.getAttribute('data-category');
         const cName = card.getAttribute('data-name') || '';
         const cDesc = card.getAttribute('data-desc') || '';
 
-        const catMatches = (activeToolCat === 'all' || activeToolCat === cCat);
-        const searchMatches = (!q || cName.includes(q) || cDesc.includes(q));
+        const catOk    = (activeToolCat === 'all' || activeToolCat === cCat);
+        const searchOk = (!q || cName.includes(q) || cDesc.includes(q));
 
-        if (catMatches && searchMatches) {
+        if (catOk && searchOk) {
           card.style.display = '';
           visibleInSection++;
           visibleTotal++;
@@ -871,21 +1038,16 @@ if ($q) {
           card.style.display = 'none';
         }
       });
-
-      sec.style.display = (visibleInSection > 0) ? '' : 'none';
+      sec.style.display = visibleInSection > 0 ? '' : 'none';
     });
 
-    const emptyMsg = document.getElementById('instant-empty-state');
-    if (emptyMsg) {
-      emptyMsg.classList.toggle('hidden', visibleTotal > 0);
-    }
+    const emptyEl = document.getElementById('instant-empty-state');
+    if (emptyEl) emptyEl.classList.toggle('hidden', visibleTotal > 0);
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('tools-search');
-    if (searchInput) {
-      searchInput.addEventListener('input', applyToolFilters);
-    }
+  document.addEventListener('DOMContentLoaded', () => {
+    const s = document.getElementById('tools-search');
+    if (s) s.addEventListener('input', applyToolFilters);
   });
 
   let totpInterval = null;
