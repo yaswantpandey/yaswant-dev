@@ -17,52 +17,152 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+function handleResourceFileUpload(?array $file, ?string $currentUrl = null): array {
+    if (!$file || empty($file['name']) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return ['url' => null, 'size' => null];
+    }
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception("File upload failed (code: " . $file['error'] . ")");
+    }
+
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $allowed = ['zip', 'rar', '7z', 'tar', 'gz', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'py', 'java', 'cpp', 'c', 'js', 'json', 'sql', 'md', 'sh', 'apk', 'png', 'jpg', 'webp'];
+    if (!in_array($ext, $allowed, true)) {
+        throw new Exception("Disallowed file type: .$ext. Allowed formats: .zip, .rar, .7z, .tar, .gz, .pdf, source code, docs.");
+    }
+
+    $uploadDir = __DIR__ . '/../uploads/resources/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+
+    $origBase = pathinfo($file['name'], PATHINFO_FILENAME);
+    $cleanBase = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $origBase);
+    $cleanBase = substr($cleanBase, 0, 45) ?: 'file';
+    $newFileName = 'res_' . time() . '_' . $cleanBase . '.' . $ext;
+    $targetPath = $uploadDir . $newFileName;
+
+    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+        throw new Exception("Could not save uploaded file on server.");
+    }
+
+    $bytes = (int) $file['size'];
+    $units = ['B', 'KB', 'MB', 'GB'];
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+    $formattedSize = round($bytes / pow(1024, $pow), 1) . ' ' . $units[$pow];
+    $webUrl = 'uploads/resources/' . $newFileName;
+
+    // Clean up old file if stored locally
+    if ($currentUrl && strpos($currentUrl, 'uploads/resources/') === 0) {
+        $oldPath = __DIR__ . '/../' . $currentUrl;
+        if (is_file($oldPath)) {
+            @unlink($oldPath);
+        }
+    }
+
+    return ['url' => $webUrl, 'size' => $formattedSize];
+}
+
 $action = $_POST['action'] ?? '';
 $pdo = get_db();
 
 switch ($action) {
     case 'add_resource':
-        $title = trim($_POST['title'] ?? '');
-        $branch = trim($_POST['branch'] ?? 'CS');
-        $sem = trim($_POST['sem'] ?? 'S1');
-        $type = trim($_POST['type'] ?? 'Notes');
-        $by = trim($_POST['by'] ?? 'Yaswant Admin');
-        $size = trim($_POST['size'] ?? '2.0 MB');
-        $color = trim($_POST['color'] ?? 'primary');
-        $url = trim($_POST['url'] ?? '');
+        $title  = trim($_POST['title'] ?? '');
+        $branch = trim($_POST['branch'] ?? 'Tools');
+        $sem    = trim($_POST['sem'] ?? 'All');
+        $type   = trim($_POST['type'] ?? 'ZIP File');
+        $by     = trim($_POST['by'] ?? 'Yaswant Dev');
+        $size   = trim($_POST['size'] ?? '');
+        $color  = trim($_POST['color'] ?? 'amber');
+        $url    = trim($_POST['url'] ?? '');
 
         if (!$title) {
             echo json_encode(['error' => 'Title is required']);
             exit;
         }
 
+        try {
+            $uploadResult = handleResourceFileUpload($_FILES['file'] ?? null);
+            if (!empty($uploadResult['url'])) {
+                $url = $uploadResult['url'];
+                if (empty($size) || $size === '2.0 MB') {
+                    $size = $uploadResult['size'];
+                }
+            }
+        } catch (Exception $e) {
+            echo json_encode(['error' => $e->getMessage()]);
+            exit;
+        }
+
+        if (empty($size)) {
+            $size = ($type === 'ZIP File' || $type === 'Tools') ? '5.0 MB' : '2.0 MB';
+        }
+
         $stmt = $pdo->prepare("INSERT INTO resources (branch, sem, type, title, by_author, file_size, color, download_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$branch, $sem, $type, $title, $by, $size, $color, $url ?: null]);
-        echo json_encode(['success' => true, 'message' => 'Resource added to database']);
+        echo json_encode(['success' => true, 'message' => 'Resource & tool package added successfully!']);
         break;
 
     case 'edit_resource':
-        $id = (int) ($_POST['id'] ?? 0);
-        $title = trim($_POST['title'] ?? '');
-        $branch = trim($_POST['branch'] ?? 'CS');
-        $sem = trim($_POST['sem'] ?? 'S1');
-        $type = trim($_POST['type'] ?? 'Notes');
-        $by = trim($_POST['by'] ?? 'Yaswant Admin');
-        $size = trim($_POST['size'] ?? '2.0 MB');
-        $url = trim($_POST['url'] ?? '');
+        $id     = (int) ($_POST['id'] ?? 0);
+        $title  = trim($_POST['title'] ?? '');
+        $branch = trim($_POST['branch'] ?? 'Tools');
+        $sem    = trim($_POST['sem'] ?? 'All');
+        $type   = trim($_POST['type'] ?? 'ZIP File');
+        $by     = trim($_POST['by'] ?? 'Yaswant Dev');
+        $size   = trim($_POST['size'] ?? '');
+        $color  = trim($_POST['color'] ?? 'amber');
+        $url    = trim($_POST['url'] ?? '');
 
         if (!$id || !$title) {
             echo json_encode(['error' => 'Invalid resource parameters']);
             exit;
         }
 
-        $stmt = $pdo->prepare("UPDATE resources SET title = ?, branch = ?, sem = ?, type = ?, by_author = ?, file_size = ?, download_url = ? WHERE id = ?");
-        $stmt->execute([$title, $branch, $sem, $type, $by, $size, $url ?: null, $id]);
-        echo json_encode(['success' => true, 'message' => 'Resource updated successfully']);
+        // Get current URL to preserve if not replaced or clean up old file
+        $currStmt = $pdo->prepare("SELECT download_url, file_size FROM resources WHERE id = ?");
+        $currStmt->execute([$id]);
+        $currentRes = $currStmt->fetch();
+        $currentUrl = $currentRes['download_url'] ?? null;
+
+        try {
+            $uploadResult = handleResourceFileUpload($_FILES['file'] ?? null, $currentUrl);
+            if (!empty($uploadResult['url'])) {
+                $url = $uploadResult['url'];
+                if (empty($size) || $size === '2.0 MB') {
+                    $size = $uploadResult['size'];
+                }
+            }
+        } catch (Exception $e) {
+            echo json_encode(['error' => $e->getMessage()]);
+            exit;
+        }
+
+        if (empty($url) && $currentUrl) {
+            $url = $currentUrl;
+        }
+        if (empty($size)) {
+            $size = $currentRes['file_size'] ?? '2.0 MB';
+        }
+
+        $stmt = $pdo->prepare("UPDATE resources SET title = ?, branch = ?, sem = ?, type = ?, by_author = ?, file_size = ?, color = ?, download_url = ? WHERE id = ?");
+        $stmt->execute([$title, $branch, $sem, $type, $by, $size, $color, $url ?: null, $id]);
+        echo json_encode(['success' => true, 'message' => 'Resource updated successfully!']);
         break;
 
     case 'delete_resource':
         $id = (int) ($_POST['id'] ?? 0);
+        $currStmt = $pdo->prepare("SELECT download_url FROM resources WHERE id = ?");
+        $currStmt->execute([$id]);
+        $res = $currStmt->fetch();
+        if ($res && !empty($res['download_url']) && strpos($res['download_url'], 'uploads/resources/') === 0) {
+            $f = __DIR__ . '/../' . $res['download_url'];
+            if (is_file($f)) {
+                @unlink($f);
+            }
+        }
         $stmt = $pdo->prepare("DELETE FROM resources WHERE id = ?");
         $stmt->execute([$id]);
         echo json_encode(['success' => true, 'message' => 'Resource deleted from database']);

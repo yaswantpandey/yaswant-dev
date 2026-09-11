@@ -234,14 +234,18 @@ INSERT IGNORE INTO `articles` (`id`, `cat`, `title`, `excerpt`, `content`, `auth
 (3, 'Technical', 'Demystifying Kubernetes Architecture & Container Orchestration', 'Breaking down control plane nodes, kubelet agents, etcd consensus, and pod networking for software engineers.', '<h2>Why Kubernetes?</h2><p>As applications transition from monolithic services to distributed microservices, automated scheduling, rollbacks, and self-healing container infrastructure become indispensable.</p><h3>Core Components</h3><ul><li><strong>etcd:</strong> Distributed key-value store holding the cluster state.</li><li><strong>kube-scheduler:</strong> Assigns pods to nodes based on resource constraints.</li><li><strong>kube-proxy:</strong> Handles network routing and load balancing across service endpoints.</li></ul>', 'David Kim', '10 min', 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800'),
 (4, 'Student Life', 'Managing Cognitive Fatigue During Finals & Placements', 'Evidence-backed strategies for maintaining high mental performance, optimizing spaced repetition blocks, and active recovery.', '<h2>Brain Optimization</h2><p>Engineering examinations require sustained analytical focus. Learn how the Pomodoro 50/10 protocol, hydration, and sleep hygiene directly improve retention and problem-solving speed.</p>', 'Sarah Jenkins', '6 min', 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800');
 
--- 5. Academic Resources (Notes & PYQs)
-INSERT IGNORE INTO `resources` (`id`, `branch`, `sem`, `type`, `title`, `by_author`, `file_size`, `color`) VALUES
-(1, 'CS', 'S3', 'Notes', 'Data Structures & Algorithms Handwritten Complete Notes', 'Yaswant Admin', '4.2 MB', 'primary'),
-(2, 'CS', 'S4', 'PYQ', 'Operating Systems 2024 End-Sem Solved PYQs with Answers', 'Prof. Vance', '2.8 MB', 'secondary'),
-(3, 'CS', 'S5', 'Notes', 'Database Management Systems SQL & Normalization Cheat Sheet', 'Yaswant Admin', '1.5 MB', 'tertiary'),
-(4, 'ME', 'S2', 'Lab Manual', 'Engineering Mechanics Lab Manual & Formula Derivations', 'Dr. Smith', '3.1 MB', 'primary'),
-(5, 'CS', 'S6', 'Notes', 'Computer Networks OSI Model & TCP/IP Socket Programming', 'Yaswant Admin', '3.6 MB', 'secondary'),
-(6, 'EC', 'S3', 'PYQ', 'Digital Electronics & Logic Design Solved Question Bank', 'Prof. Sharma', '2.4 MB', 'tertiary');
+-- 5. Academic Resources & Tools Vault (Notes, PYQs, Tools & ZIP Archives)
+INSERT IGNORE INTO `resources` (`id`, `branch`, `sem`, `type`, `title`, `by_author`, `file_size`, `color`, `download_url`) VALUES
+(1, 'Tools', 'All', 'ZIP File', 'Cybersecurity 26-in-1 Offline Penetration Testing Tools Suite (.ZIP)', 'Yaswant Dev', '18.4 MB', 'amber', 'tools/'),
+(2, 'Tools', 'All', 'ZIP File', 'Full-Stack Web Development Starter Pack & REST API Boilerplate (.ZIP)', 'Yaswant Dev', '6.2 MB', 'cyan', 'https://github.com/yaswantpandey'),
+(3, 'CS', 'All', 'Source Code', 'Data Structures & Algorithms Complete Java & C++ Code Archive (.ZIP)', 'Yaswant Dev', '4.5 MB', 'emerald', 'https://github.com/yaswantpandey'),
+(4, 'Tools', 'All', 'ZIP File', 'Linux DevOps & System Administration Automation Shell Scripts (.ZIP)', 'Yaswant Dev', '2.1 MB', 'indigo', 'https://github.com/yaswantpandey'),
+(5, 'CS', 'S3', 'Notes', 'Data Structures & Algorithms Handwritten Complete Notes', 'Yaswant Admin', '4.2 MB', 'emerald', 'https://drive.google.com/'),
+(6, 'CS', 'S4', 'PYQ', 'Operating Systems 2024 End-Sem Solved PYQs with Answers', 'Prof. Vance', '2.8 MB', 'cyan', 'https://drive.google.com/'),
+(7, 'CS', 'S5', 'Notes', 'Database Management Systems SQL & Normalization Cheat Sheet', 'Yaswant Admin', '1.5 MB', 'indigo', 'https://drive.google.com/'),
+(8, 'ME', 'S2', 'Lab Manual', 'Engineering Mechanics Lab Manual & Formula Derivations', 'Dr. Smith', '3.1 MB', 'rose', 'https://drive.google.com/'),
+(9, 'CS', 'S6', 'Notes', 'Computer Networks OSI Model & TCP/IP Socket Programming', 'Yaswant Admin', '3.6 MB', 'amber', 'https://drive.google.com/'),
+(10, 'EC', 'S3', 'PYQ', 'Digital Electronics & Logic Design Solved Question Bank', 'Prof. Sharma', '2.4 MB', 'violet', 'https://drive.google.com/');
 
 -- 6. Curated Courses
 INSERT IGNORE INTO `courses` (`id`, `title`, `tag`, `lessons`, `level`, `color`, `icon`, `playlist_url`) VALUES

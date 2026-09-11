@@ -82,8 +82,8 @@ nexus_head('Admin Control Center v3','Admin dashboard for Yaswant Dev.','admin p
     </div>
   </div>
   <div class="flex items-center gap-2 flex-wrap">
-    <button onclick="openModal('modal-add-resource')" class="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 px-3 py-2 rounded-xl font-mono text-xs flex items-center gap-1.5 transition-all active:scale-95">
-      <span class="material-symbols-outlined text-[16px]">upload_file</span> Resource
+    <button onclick="openAddResourceModal()" class="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 px-3 py-2 rounded-xl font-mono text-xs flex items-center gap-1.5 transition-all active:scale-95">
+      <span class="material-symbols-outlined text-[16px]">folder_zip</span> Add Tool / Resource
     </button>
     <button onclick="openModal('modal-add-course')" class="bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-400 px-3 py-2 rounded-xl font-mono text-xs flex items-center gap-1.5 transition-all active:scale-95">
       <span class="material-symbols-outlined text-[16px]">school</span> Course
@@ -165,7 +165,7 @@ foreach($kpis as $k): $c=$kc[$k['c']]; ?>
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Quick Actions
       </div>
 <?php
-$acts=[['label'=>'Add Resource','sub'=>'Notes, PYQs, Manuals','icon'=>'upload_file','fn'=>"openModal('modal-add-resource')",'bc'=>'bg-emerald-500 hover:bg-emerald-400 text-black'],
+$acts=[['label'=>'Add Resource & Tool','sub'=>'ZIPs, Tools, Notes, PYQs','icon'=>'folder_zip','fn'=>"openAddResourceModal()",'bc'=>'bg-emerald-500 hover:bg-emerald-400 text-black'],
 ['label'=>'Post Internship','sub'=>'Publish openings','icon'=>'post_add','fn'=>"openModal('modal-add-job')",'bc'=>'bg-indigo-600 hover:bg-indigo-500 text-white'],
 ['label'=>'Write Article','sub'=>'Rich blog content','icon'=>'edit_note','fn'=>'openArticleStudio()','bc'=>'bg-purple-600 hover:bg-purple-500 text-white'],
 ['label'=>'Add Course','sub'=>'Engineering curriculum','icon'=>'school','fn'=>"openModal('modal-add-course')",'bc'=>'bg-cyan-500 hover:bg-cyan-400 text-black']];
@@ -292,34 +292,108 @@ foreach($domains as $d): ?>
 <?php elseif($tab==='resources'): ?>
 <div class="flex flex-col gap-5">
   <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-    <div><h2 class="text-white text-lg font-bold">Study Resources Catalog</h2><p class="text-xs text-zinc-500 font-mono"><?=count($resources)?> items</p></div>
+    <div>
+      <h2 class="text-white text-lg font-bold flex items-center gap-2">
+        <span class="material-symbols-outlined text-emerald-400">folder_zip</span>
+        Academic & Developer Resources Catalog
+      </h2>
+      <p class="text-xs text-zinc-500 font-mono"><?=count($resources)?> items &middot; Tools, ZIP Archives, Source Code, Notes & Question Banks</p>
+    </div>
     <div class="flex items-center gap-2 w-full sm:w-auto">
       <div class="flex-1 sm:flex-none flex items-center bg-zinc-900 border border-zinc-800 rounded-xl px-3 gap-2">
         <span class="material-symbols-outlined text-zinc-600 text-[16px]">search</span>
-        <input type="text" id="search-resources" oninput="filterTable('search-resources','tbl-resources')" placeholder="Filter..." class="bg-transparent text-white text-xs outline-none py-2 w-full sm:w-48 font-mono placeholder:text-zinc-600"/>
+        <input type="text" id="search-resources" oninput="filterTable('search-resources','tbl-resources')" placeholder="Filter resources or tools..." class="bg-transparent text-white text-xs outline-none py-2 w-full sm:w-56 font-mono placeholder:text-zinc-600"/>
       </div>
-      <button onclick="openModal('modal-add-resource')" class="bg-emerald-500 hover:bg-emerald-400 text-black px-3 py-2 rounded-xl font-mono font-bold text-xs flex items-center gap-1.5 whitespace-nowrap transition-all active:scale-95">
-        <span class="material-symbols-outlined text-[16px]">add</span> Add
+      <button onclick="openAddResourceModal()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black px-3.5 py-2 rounded-xl font-mono font-bold text-xs flex items-center gap-1.5 whitespace-nowrap transition-all shadow-md shadow-emerald-500/20 active:scale-95">
+        <span class="material-symbols-outlined text-[16px]">add_circle</span> Add Tool / ZIP
       </button>
     </div>
   </div>
-  <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl overflow-hidden overflow-x-auto">
-    <table id="tbl-resources" class="w-full text-left border-collapse text-sm min-w-[580px]">
+  <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl overflow-hidden overflow-x-auto shadow-xl">
+    <table id="tbl-resources" class="w-full text-left border-collapse text-sm min-w-[720px]">
       <thead><tr class="bg-zinc-800/80 text-zinc-400 font-mono text-[10px] uppercase border-b border-zinc-800">
-        <th class="px-4 py-3">Title</th><th class="px-4 py-3">Branch/Sem</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Author</th><th class="px-4 py-3">Size</th><th class="px-4 py-3 text-right">Actions</th>
+        <th class="px-4 py-3">Resource / Tool Title</th>
+        <th class="px-4 py-3">Domain & Sem</th>
+        <th class="px-4 py-3">Type</th>
+        <th class="px-4 py-3">Download / File</th>
+        <th class="px-4 py-3">Author</th>
+        <th class="px-4 py-3">Size</th>
+        <th class="px-4 py-3 text-right">Actions</th>
       </tr></thead>
       <tbody class="divide-y divide-zinc-800/60">
-<?php foreach($resources as $r): ?>
+<?php foreach($resources as $r): 
+  $isZip = (strcasecmp($r['type'] ?? '', 'ZIP File') === 0 || stripos($r['title'] ?? '', '.zip') !== false);
+  $isTool = (strcasecmp($r['type'] ?? '', 'Tools') === 0 || strcasecmp($r['type'] ?? '', 'Software') === 0);
+  $typeBadgeCls = match(true) {
+    $isZip => 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
+    $isTool => 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30',
+    strcasecmp($r['type'] ?? '', 'Source Code') === 0 => 'bg-violet-500/15 text-violet-400 border border-violet-500/30',
+    strcasecmp($r['type'] ?? '', 'PYQ') === 0 => 'bg-purple-500/15 text-purple-400 border border-purple-500/30',
+    strcasecmp($r['type'] ?? '', 'Lab Manual') === 0 => 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+    default => 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+  };
+  $typeIcon = match(true) {
+    $isZip => 'folder_zip',
+    $isTool => 'build',
+    strcasecmp($r['type'] ?? '', 'Source Code') === 0 => 'code',
+    strcasecmp($r['type'] ?? '', 'PYQ') === 0 => 'assignment',
+    strcasecmp($r['type'] ?? '', 'Lab Manual') === 0 => 'science',
+    strcasecmp($r['type'] ?? '', 'Formula Sheet') === 0 => 'calculate',
+    default => 'menu_book'
+  };
+?>
         <tr class="hover:bg-zinc-800/40 transition-colors">
-          <td class="px-4 py-3 font-medium text-white text-sm"><?=htmlspecialchars($r['title'])?></td>
-          <td class="px-4 py-3"><span class="bg-zinc-800 px-2 py-0.5 rounded-lg text-xs font-mono text-zinc-300"><?=$r['branch']?> &middot; <?=$r['sem']?></span></td>
-          <td class="px-4 py-3"><span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-lg text-xs font-mono"><?=htmlspecialchars($r['type'])?></span></td>
-          <td class="px-4 py-3 text-zinc-400 text-xs"><?=htmlspecialchars($r['by'])?></td>
-          <td class="px-4 py-3 text-zinc-500 font-mono text-xs"><?=htmlspecialchars($r['size'])?></td>
-          <td class="px-4 py-3 text-right"><div class="flex items-center justify-end gap-1">
-            <button onclick='editResource(<?=json_encode($r)?>)' class="text-cyan-400 hover:bg-cyan-500/15 p-1.5 rounded-lg transition-colors"><span class="material-symbols-outlined text-[17px]">edit</span></button>
-            <button onclick="deleteItem('delete_resource','<?=$r['id']?>')" class="text-red-400 hover:bg-red-500/15 p-1.5 rounded-lg transition-colors"><span class="material-symbols-outlined text-[17px]">delete</span></button>
-          </div></td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] <?= $isZip ? 'text-amber-400' : ($isTool ? 'text-cyan-400' : 'text-emerald-400') ?> shrink-0">
+                <?= $typeIcon ?>
+              </span>
+              <div class="min-w-0">
+                <div class="font-medium text-white text-xs leading-snug line-clamp-1"><?=htmlspecialchars($r['title'])?></div>
+                <div class="text-[10px] font-mono text-zinc-500">ID #<?=$r['id']?> &middot; Color: <?=$r['color'] ?? 'default'?></div>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <span class="bg-zinc-800 px-2 py-0.5 rounded-lg text-xs font-mono text-zinc-300">
+              <?=htmlspecialchars($r['branch'])?> &middot; <?=htmlspecialchars($r['sem'])?>
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-0.5 rounded-lg text-xs font-mono inline-flex items-center gap-1 <?=$typeBadgeCls?>">
+              <span class="material-symbols-outlined text-[12px]"><?=$typeIcon?></span>
+              <?=htmlspecialchars($r['type'])?>
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <?php if(!empty($r['url'])): 
+              $isLocal = strpos($r['url'], 'uploads/resources/') === 0;
+            ?>
+              <a href="<?=htmlspecialchars($r['url'])?>" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium transition-all <?= $isLocal ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30' : 'bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/30' ?>">
+                <span class="material-symbols-outlined text-[13px]"><?= $isLocal ? 'download' : 'open_in_new' ?></span>
+                <?= $isLocal ? 'Local File' : 'External Link' ?>
+              </a>
+            <?php else: ?>
+              <span class="text-zinc-600 font-mono text-[11px] italic">No link</span>
+            <?php endif; ?>
+          </td>
+          <td class="px-4 py-3 text-zinc-400 text-xs truncate max-w-[120px]"><?=htmlspecialchars($r['by'])?></td>
+          <td class="px-4 py-3 text-zinc-400 font-mono text-xs"><?=htmlspecialchars($r['size'] ?? 'PDF')?></td>
+          <td class="px-4 py-3 text-right">
+            <div class="flex items-center justify-end gap-1">
+              <?php if(!empty($r['url'])): ?>
+                <a href="<?=htmlspecialchars($r['url'])?>" target="_blank" download class="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition-colors" title="Download">
+                  <span class="material-symbols-outlined text-[17px]">download</span>
+                </a>
+              <?php endif; ?>
+              <button onclick='editResource(<?=htmlspecialchars(json_encode($r), ENT_QUOTES, 'UTF-8')?>)' class="text-cyan-400 hover:bg-cyan-500/15 p-1.5 rounded-lg transition-colors" title="Edit">
+                <span class="material-symbols-outlined text-[17px]">edit</span>
+              </button>
+              <button onclick="deleteItem('delete_resource','<?=$r['id']?>')" class="text-red-400 hover:bg-red-500/15 p-1.5 rounded-lg transition-colors" title="Delete">
+                <span class="material-symbols-outlined text-[17px]">delete</span>
+              </button>
+            </div>
+          </td>
         </tr>
 <?php endforeach; ?>
       </tbody>
@@ -611,38 +685,112 @@ foreach($subs as $sd): ?>
 
 <!-- ══ MODAL: RESOURCE ══ -->
 <div id="modal-add-resource" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
-  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-    <div class="flex justify-between items-center mb-5">
-      <h3 id="res-modal-title" class="text-white font-bold text-base">Add Study Resource</h3>
-      <button onclick="closeModal('modal-add-resource')" class="text-zinc-500 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[92vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-5 pb-3 border-b border-zinc-800">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <span class="material-symbols-outlined text-[18px]">folder_zip</span>
+        </div>
+        <h3 id="res-modal-title" class="text-white font-bold text-base">Add Resource / Tool ZIP</h3>
+      </div>
+      <button onclick="closeModal('modal-add-resource')" class="text-zinc-500 hover:text-white p-1 rounded-lg hover:bg-zinc-800 transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
-    <form id="form-resource" onsubmit="handleResourceSubmit(event)" class="space-y-3 text-sm">
+    <form id="form-resource" onsubmit="handleResourceSubmit(event)" enctype="multipart/form-data" class="space-y-4 text-sm">
       <input type="hidden" id="res-id" name="id" value=""/>
-      <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Resource Title</label>
-        <input id="res-title" name="title" required placeholder="e.g. Data Structures Notes Module 1" class="w-full bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Branch</label>
-          <select id="res-branch" name="branch" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono">
-            <option value="CS">CS</option><option value="ME">ME</option><option value="EC">EC</option><option value="CE">CE</option>
-          </select></div>
-        <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Semester</label>
-          <select id="res-sem" name="sem" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono">
-            <?php for($s=1;$s<=8;$s++): ?><option value="S<?=$s?>">S<?=$s?></option><?php endfor; ?>
-          </select></div>
+      
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">Resource Title *</label>
+        <input id="res-title" name="title" required placeholder="e.g. Cybersecurity Tools Pack (.ZIP) or DSA Handwritten Notes" class="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white text-xs outline-none font-mono transition-colors placeholder:text-zinc-600"/>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Type</label>
-          <select id="res-type" name="type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono">
-            <option>Notes</option><option>PYQ</option><option>Lab Manual</option><option>Cheat Sheet</option>
-          </select></div>
-        <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Author</label>
-          <input id="res-by" name="by" value="Yaswant Admin" class="w-full bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">Branch / Domain</label>
+          <select id="res-branch" name="branch" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono focus:border-emerald-500">
+            <option value="Tools">Tools & Utilities</option>
+            <option value="CS">Computer Science (CS)</option>
+            <option value="ME">Mechanical (ME)</option>
+            <option value="EC">Electronics (EC)</option>
+            <option value="CE">Civil Engineering (CE)</option>
+            <option value="All">All Branches / Common</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">Semester / Level</label>
+          <select id="res-sem" name="sem" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono focus:border-emerald-500">
+            <option value="All">All / General</option>
+            <?php for($s=1;$s<=8;$s++): ?><option value="S<?=$s?>">Semester <?=$s?></option><?php endfor; ?>
+          </select>
+        </div>
       </div>
-      <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Google Drive / PDF URL</label>
-        <input id="res-url" name="url" type="url" placeholder="https://drive.google.com/..." class="w-full bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
-      <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">File Size (optional)</label>
-        <input id="res-size" name="size" placeholder="e.g. 2.5 MB" value="2.0 MB" class="w-full bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
-      <button type="submit" id="res-btn-submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-2.5 rounded-xl font-mono font-bold text-xs transition-all active:scale-95">Save Resource</button>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">Resource Type</label>
+          <select id="res-type" name="type" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono focus:border-emerald-500">
+            <option value="ZIP File">ZIP Archive / Tools Bundle (.ZIP)</option>
+            <option value="Tools">Developer / Cyber Tool</option>
+            <option value="Software">Software & Utilities</option>
+            <option value="Source Code">Source Code / Scripts</option>
+            <option value="Notes">Lecture Notes (Handwritten/PDF)</option>
+            <option value="PYQ">Previous Year Questions (PYQ)</option>
+            <option value="Lab Manual">Lab Experiments Manual</option>
+            <option value="Formula Sheet">Formula Sheet / Cheat Sheet</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">Author / Contributor</label>
+          <input id="res-by" name="by" value="Yaswant Dev" class="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-white text-xs outline-none font-mono transition-colors"/>
+        </div>
+      </div>
+
+      <!-- File Attachment Section -->
+      <div class="p-3.5 bg-zinc-950/80 rounded-xl border border-zinc-800 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono font-semibold text-emerald-400 flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">cloud_upload</span> Upload File (.zip, .pdf, .tar.gz, code)
+          </span>
+          <span class="text-[10px] font-mono text-zinc-500">Direct Server Storage</span>
+        </div>
+        
+        <input type="file" id="res-file" name="file" onchange="handleFileSelection(this)" accept=".zip,.rar,.7z,.tar,.gz,.pdf,.doc,.docx,.ppt,.pptx,.txt,.py,.java,.cpp,.c,.js,.json,.sql,.sh,.apk" class="w-full text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-mono file:font-semibold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 file:cursor-pointer"/>
+        
+        <div id="current-file-container" class="hidden text-[11px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-2 flex items-center justify-between">
+          <span class="truncate" id="current-file-label">Current File</span>
+          <a id="current-file-link" href="#" target="_blank" class="text-xs underline shrink-0 ml-2">Preview / Download</a>
+        </div>
+      </div>
+
+      <!-- Cloud / External Link -->
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">OR External URL / Google Drive / GitHub Link</label>
+        <input id="res-url" name="url" type="url" placeholder="https://drive.google.com/... or https://github.com/..." class="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-white text-xs outline-none font-mono transition-colors placeholder:text-zinc-600"/>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">File Size Display</label>
+          <input id="res-size" name="size" placeholder="e.g. 15.4 MB" value="5.0 MB" class="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-white text-xs outline-none font-mono transition-colors"/>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">Card Accent Color</label>
+          <select id="res-color" name="color" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono">
+            <option value="amber">Amber (Orange / ZIP)</option>
+            <option value="cyan">Cyan (Blue / Tools)</option>
+            <option value="emerald">Emerald (Green / Notes)</option>
+            <option value="indigo">Indigo (Purple)</option>
+            <option value="rose">Rose (Red)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button type="submit" id="res-btn-submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black py-2.5 rounded-xl font-mono font-bold text-xs transition-all shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">save</span> Save Resource / Tool
+        </button>
+      </div>
     </form>
   </div>
 </div>
@@ -855,17 +1003,71 @@ foreach($subs as $sd): ?>
     a.download='subscribers_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
     showToast('Subscribers exported as CSV!');
   }
+  function openAddResourceModal(){
+    const form = document.getElementById('form-resource');
+    if (form) form.reset();
+    document.getElementById('res-modal-title').innerText='Add Resource / Tool ZIP';
+    document.getElementById('res-id').value='';
+    document.getElementById('res-branch').value='Tools';
+    document.getElementById('res-sem').value='All';
+    document.getElementById('res-type').value='ZIP File';
+    document.getElementById('res-by').value='Yaswant Dev';
+    document.getElementById('res-url').value='';
+    document.getElementById('res-size').value='5.0 MB';
+    document.getElementById('res-color').value='amber';
+    document.getElementById('res-file').value='';
+    document.getElementById('current-file-container').classList.add('hidden');
+    document.getElementById('res-btn-submit').innerText='Save Resource / Tool';
+    openModal('modal-add-resource');
+  }
+  function handleFileSelection(input){
+    if (input.files && input.files[0]) {
+      const f = input.files[0];
+      const bytes = f.size;
+      const units = ['B', 'KB', 'MB', 'GB'];
+      const pow = Math.min(units.length - 1, Math.floor(bytes ? Math.log(bytes)/Math.log(1024) : 0));
+      const formatted = (bytes / Math.pow(1024, pow)).toFixed(1) + ' ' + units[pow];
+      document.getElementById('res-size').value = formatted;
+      
+      const fileName = f.name;
+      const ext = fileName.split('.').pop().toLowerCase();
+      if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) {
+        document.getElementById('res-type').value = 'ZIP File';
+        document.getElementById('res-color').value = 'amber';
+        if (document.getElementById('res-branch').value === 'CS') {
+          document.getElementById('res-branch').value = 'Tools';
+        }
+      }
+      const titleInput = document.getElementById('res-title');
+      if (!titleInput.value) {
+        titleInput.value = fileName.replace(/\.[^/.]+$/, "").replace(/[_\-]/g, ' ');
+      }
+    }
+  }
   function editResource(r){
-    document.getElementById('res-modal-title').innerText='Edit Study Resource';
+    document.getElementById('res-modal-title').innerText='Edit Resource / Tool';
     document.getElementById('res-id').value=r.id;
     document.getElementById('res-title').value=r.title;
-    document.getElementById('res-branch').value=r.branch||'CS';
-    document.getElementById('res-sem').value=r.sem||'S1';
-    document.getElementById('res-type').value=r.type||'Notes';
-    document.getElementById('res-by').value=r.by||'Yaswant Admin';
+    document.getElementById('res-branch').value=r.branch||'Tools';
+    document.getElementById('res-sem').value=r.sem||'All';
+    document.getElementById('res-type').value=r.type||'ZIP File';
+    document.getElementById('res-by').value=r.by||'Yaswant Dev';
     document.getElementById('res-url').value=r.url||'';
-    document.getElementById('res-size').value=r.size||'2.0 MB';
-    document.getElementById('res-btn-submit').innerText='Update Resource';
+    document.getElementById('res-size').value=r.size||'5.0 MB';
+    document.getElementById('res-color').value=r.color||'amber';
+    document.getElementById('res-file').value='';
+    
+    const currContainer = document.getElementById('current-file-container');
+    const currLabel = document.getElementById('current-file-label');
+    const currLink = document.getElementById('current-file-link');
+    if (r.url) {
+      currContainer.classList.remove('hidden');
+      currLabel.innerText = 'Current: ' + r.url;
+      currLink.href = r.url;
+    } else {
+      currContainer.classList.add('hidden');
+    }
+    document.getElementById('res-btn-submit').innerText='Update Resource / Tool';
     openModal('modal-add-resource');
   }
   function editCourse(c){document.getElementById('course-modal-title').innerText='Edit Course Module';document.getElementById('course-id').value=c.id;document.getElementById('course-title').value=c.title;document.getElementById('course-tag').value=c.tag||'General';document.getElementById('course-lessons').value=c.lessons||20;document.getElementById('course-level').value=c.level||'Beginner';document.getElementById('course-btn-submit').innerText='Update Course';openModal('modal-add-course');}
