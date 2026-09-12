@@ -25,8 +25,11 @@ nexus_head(
         <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Security Tool</span>
       </div>
 
-      <div class="flex items-center justify-between">
-        <button id="btn-packet-toggle" onclick="togglePacketCapture()" class="bg-emerald-500 text-black px-md py-xs rounded-xl font-mono text-xs font-bold">Start Capture</button>
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <button id="btn-packet-toggle" onclick="togglePacketCapture()" class="bg-emerald-500 hover:bg-emerald-400 text-black px-md py-xs rounded-xl font-mono text-xs font-bold transition-all active:scale-95">Start Capture</button>
+          <button onclick="clearPacketStream()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-md py-xs rounded-xl font-mono text-xs transition-all active:scale-95">Clear Stream</button>
+        </div>
         <span id="packet-count-label" class="text-xs font-mono text-emerald-400">Packets Captured: 0</span>
       </div>
 
@@ -42,6 +45,12 @@ nexus_head(
   let packetInterval = null;
   let packetCount = 0;
 
+  function clearPacketStream() {
+    packetCount = 0;
+    document.getElementById('packet-count-label').innerText = 'Packets Captured: 0';
+    document.getElementById('packet-stream').innerHTML = '<span class="text-zinc-500">Stream cleared. Click Start Capture to resume live frames.</span>';
+  }
+
   function togglePacketCapture() {
     const btn = document.getElementById('btn-packet-toggle');
     const stream = document.getElementById('packet-stream');
@@ -54,7 +63,7 @@ nexus_head(
     }
 
     btn.innerText = 'Stop Capture';
-    if (stream.children[0] && stream.children[0].innerText.startsWith('Click Start Capture')) {
+    if (stream.children[0] && stream.children[0].innerText.includes('Click Start Capture')) {
       stream.innerHTML = '';
     }
 

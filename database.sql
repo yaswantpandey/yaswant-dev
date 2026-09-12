@@ -236,7 +236,7 @@ INSERT IGNORE INTO `articles` (`id`, `cat`, `title`, `excerpt`, `content`, `auth
 
 -- 5. Academic Resources & Tools Vault (Notes, PYQs, Tools & ZIP Archives)
 INSERT IGNORE INTO `resources` (`id`, `branch`, `sem`, `type`, `title`, `by_author`, `file_size`, `color`, `download_url`) VALUES
-(1, 'Tools', 'All', 'ZIP File', 'Cybersecurity 26-in-1 Offline Penetration Testing Tools Suite (.ZIP)', 'Yaswant Dev', '18.4 MB', 'amber', 'tools/'),
+(1, 'Tools', 'All', 'ZIP File', 'Cybersecurity 26-in-1 Offline Penetration Testing Tools Suite (.ZIP)', 'Yaswant Dev', '18.4 MB', 'amber', 'api/download_tools_zip.php'),
 (2, 'Tools', 'All', 'ZIP File', 'Full-Stack Web Development Starter Pack & REST API Boilerplate (.ZIP)', 'Yaswant Dev', '6.2 MB', 'cyan', 'https://github.com/yaswantpandey'),
 (3, 'CS', 'All', 'Source Code', 'Data Structures & Algorithms Complete Java & C++ Code Archive (.ZIP)', 'Yaswant Dev', '4.5 MB', 'emerald', 'https://github.com/yaswantpandey'),
 (4, 'Tools', 'All', 'ZIP File', 'Linux DevOps & System Administration Automation Shell Scripts (.ZIP)', 'Yaswant Dev', '2.1 MB', 'indigo', 'https://github.com/yaswantpandey'),

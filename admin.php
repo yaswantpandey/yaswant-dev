@@ -2,7 +2,7 @@
 // admin.php — Yaswant Dev Admin Control Center v3.0
 session_start();
 
-if (!empty($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 900)) {
+if (!empty($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 86400)) {
   session_unset(); session_destroy();
   header('Location: admin_login.php?timeout=1'); exit;
 }
@@ -766,7 +766,7 @@ foreach($subs as $sd): ?>
       <!-- Cloud / External Link -->
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 font-medium">OR External URL / Google Drive / GitHub Link</label>
-        <input id="res-url" name="url" type="url" placeholder="https://drive.google.com/... or https://github.com/..." class="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-white text-xs outline-none font-mono transition-colors placeholder:text-zinc-600"/>
+        <input id="res-url" name="url" type="text" placeholder="https://drive.google.com/... or https://github.com/..." class="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-white text-xs outline-none font-mono transition-colors placeholder:text-zinc-600"/>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
@@ -816,6 +816,10 @@ foreach($subs as $sd): ?>
             <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
           </select></div>
       </div>
+      <div>
+        <label class="block text-[10px] font-mono text-zinc-500 mb-1">Course / Video Playlist Link (Optional)</label>
+        <input id="course-playlist" name="playlist_url" type="text" placeholder="https://youtube.com/playlist?list=... or docs link" class="w-full bg-zinc-800 border border-zinc-700 focus:border-cyan-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/>
+      </div>
       <button type="submit" id="course-btn-submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black py-2.5 rounded-xl font-mono font-bold text-xs transition-all active:scale-95">Publish Course</button>
     </form>
   </div>
@@ -843,7 +847,7 @@ foreach($subs as $sd): ?>
       <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Tags (comma separated)</label>
         <input id="job-tags" name="tags" placeholder="Python, React, Full-Stack" class="w-full bg-zinc-800 border border-zinc-700 focus:border-indigo-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
       <div><label class="block text-[10px] font-mono text-zinc-500 mb-1">Apply Link</label>
-        <input id="job-link" name="link" type="url" placeholder="https://apply.example.com" class="w-full bg-zinc-800 border border-zinc-700 focus:border-indigo-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
+        <input id="job-link" name="link" type="text" placeholder="https://apply.example.com" class="w-full bg-zinc-800 border border-zinc-700 focus:border-indigo-500 rounded-xl px-3 py-2 text-white text-xs outline-none font-mono transition-colors"/></div>
       <button type="submit" id="job-btn-submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl font-mono font-bold text-xs transition-all active:scale-95">Post Internship</button>
     </form>
   </div>
@@ -1070,8 +1074,31 @@ foreach($subs as $sd): ?>
     document.getElementById('res-btn-submit').innerText='Update Resource / Tool';
     openModal('modal-add-resource');
   }
-  function editCourse(c){document.getElementById('course-modal-title').innerText='Edit Course Module';document.getElementById('course-id').value=c.id;document.getElementById('course-title').value=c.title;document.getElementById('course-tag').value=c.tag||'General';document.getElementById('course-lessons').value=c.lessons||20;document.getElementById('course-level').value=c.level||'Beginner';document.getElementById('course-btn-submit').innerText='Update Course';openModal('modal-add-course');}
-  function editJob(j){document.getElementById('job-modal-title').innerText='Edit Internship Role';document.getElementById('job-id').value=j.id;document.getElementById('job-title').value=j.title;document.getElementById('job-company').value=j.company;document.getElementById('job-location').value=j.location||'Remote';document.getElementById('job-pay').value=j.pay||'15,000/month';document.getElementById('job-tags').value=Array.isArray(j.tags)?j.tags.join(', '):(j.tags||'');document.getElementById('job-link').value=j.link||'';document.getElementById('job-btn-submit').innerText='Update Internship';openModal('modal-add-job');}
+  function editCourse(c){
+    document.getElementById('course-modal-title').innerText='Edit Course Module';
+    document.getElementById('course-id').value=c.id;
+    document.getElementById('course-title').value=c.title;
+    document.getElementById('course-tag').value=c.tag||'General';
+    document.getElementById('course-lessons').value=c.lessons||20;
+    document.getElementById('course-level').value=c.level||'Beginner';
+    const pl = document.getElementById('course-playlist');
+    if (pl) pl.value = c.playlist_url || '';
+    document.getElementById('course-btn-submit').innerText='Update Course';
+    openModal('modal-add-course');
+  }
+  function editJob(j){
+    document.getElementById('job-modal-title').innerText='Edit Internship Role';
+    document.getElementById('job-id').value=j.id;
+    document.getElementById('job-title').value=j.title;
+    document.getElementById('job-company').value=j.company;
+    document.getElementById('job-location').value=j.location||'Remote';
+    document.getElementById('job-pay').value=j.pay||'15,000/month';
+    document.getElementById('job-tags').value=Array.isArray(j.tags)?j.tags.join(', '):(j.tags||'');
+    const linkEl = document.getElementById('job-link');
+    if (linkEl) linkEl.value = j.apply_link || j.link || '';
+    document.getElementById('job-btn-submit').innerText='Update Internship';
+    openModal('modal-add-job');
+  }
   function handleResourceSubmit(e){e.preventDefault();submitAdminForm(e.target,document.getElementById('res-id').value?'edit_resource':'add_resource');}
   function handleCourseSubmit(e){e.preventDefault();submitAdminForm(e.target,document.getElementById('course-id').value?'edit_course':'add_course');}
   function handleJobSubmit(e){e.preventDefault();submitAdminForm(e.target,document.getElementById('job-id').value?'edit_job':'add_job');}
@@ -1082,33 +1109,83 @@ foreach($subs as $sd): ?>
     const origText = btn ? btn.innerText : '';
     if(btn){btn.disabled=true;btn.innerText='Saving…';}
     fetch('api/admin_action.php',{method:'POST',body:formData})
-      .then(r=>r.json()).then(res=>{
-        if(res.success){
+      .then(async function(r){
+        const text = await r.text();
+        let res;
+        try {
+          res = JSON.parse(text);
+        } catch(e) {
+          const clean = text.replace(/<[^>]+>/g, ' ').trim().substring(0, 160);
+          throw new Error(clean || 'Server returned invalid response (' + r.status + ')');
+        }
+        return res;
+      })
+      .then(function(res){
+        if(res && res.success){
           showToast(res.message || 'Saved successfully!');
-          setTimeout(()=>window.location.reload(), 1200);
+          setTimeout(function(){ window.location.reload(); }, 900);
         } else {
-          showToast(res.error||'Operation failed','error');
+          const err = (res && res.error) ? res.error : 'Operation failed.';
+          showToast(err, 'error');
           if(btn){btn.disabled=false;btn.innerText=origText;}
         }
-      }).catch(function(){
-        showToast('Network error. Please try again.','error');
+      })
+      .catch(function(err){
+        console.error('Admin submit error:', err);
+        showToast(err.message || 'Network error. Please try again.', 'error');
         if(btn){btn.disabled=false;btn.innerText=origText;}
       });
   }
   function deleteItem(action,id){
     if(!confirm('Permanently delete this item?'))return;
     const f=new FormData();f.append('action',action);f.append('id',id);
-    fetch('api/admin_action.php',{method:'POST',body:f}).then(r=>r.json()).then(res=>{
-      if(res.success){showToast('Deleted successfully!');setTimeout(()=>window.location.reload(),1000);}
-      else showToast(res.error||'Delete failed','error');
-    });
+    fetch('api/admin_action.php',{method:'POST',body:f})
+      .then(async function(r){
+        const text = await r.text();
+        let res;
+        try {
+          res = JSON.parse(text);
+        } catch(e) {
+          throw new Error('Server error (' + r.status + ')');
+        }
+        return res;
+      })
+      .then(function(res){
+        if(res && res.success){
+          showToast(res.message || 'Deleted successfully!');
+          setTimeout(function(){ window.location.reload(); }, 900);
+        } else {
+          showToast((res && res.error) ? res.error : 'Delete failed', 'error');
+        }
+      })
+      .catch(function(err){
+        showToast(err.message || 'Delete failed', 'error');
+      });
   }
   function deleteSubscriber(email){
     if(!confirm('Remove subscriber '+email+'?'))return;
     const f=new FormData();f.append('action','delete_subscriber');f.append('email',email);
-    fetch('api/admin_action.php',{method:'POST',body:f}).then(r=>r.json()).then(res=>{
-      if(res.success){showToast('Subscriber removed');setTimeout(()=>window.location.reload(),1000);}
-      else showToast(res.error||'Delete failed','error');
-    });
+    fetch('api/admin_action.php',{method:'POST',body:f})
+      .then(async function(r){
+        const text = await r.text();
+        let res;
+        try {
+          res = JSON.parse(text);
+        } catch(e) {
+          throw new Error('Server error (' + r.status + ')');
+        }
+        return res;
+      })
+      .then(function(res){
+        if(res && res.success){
+          showToast(res.message || 'Subscriber removed');
+          setTimeout(function(){ window.location.reload(); }, 900);
+        } else {
+          showToast((res && res.error) ? res.error : 'Delete failed', 'error');
+        }
+      })
+      .catch(function(err){
+        showToast(err.message || 'Delete failed', 'error');
+      });
   }
 </script>

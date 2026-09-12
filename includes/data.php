@@ -36,7 +36,7 @@ if (!function_exists('get_jobs')) {
     {
         try {
             $pdo = get_db();
-            $stmt = $pdo->query("SELECT id, title, company, location, pay, tags, color FROM jobs ORDER BY id DESC");
+            $stmt = $pdo->query("SELECT id, title, company, location, pay, tags, color, apply_link AS link FROM jobs ORDER BY id DESC");
             $jobs = $stmt->fetchAll();
             foreach ($jobs as &$j) {
                 if (isset($j['tags']) && is_string($j['tags'])) {

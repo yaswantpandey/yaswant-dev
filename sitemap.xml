@@ -34,10 +34,16 @@
   <!-- ═══ resource.yaswant.co.in ════════════════════════════════════════════ -->
   <url>
     <loc>https://resource.yaswant.co.in/</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>0.95</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://resource.yaswant.co.in/"/>
+  </url>
+  <url>
+    <loc>https://resource.yaswant.co.in/?branch=Tools</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- ═══ course.yaswant.co.in ══════════════════════════════════════════════ -->
@@ -52,39 +58,39 @@
   <!-- ═══ tools.yaswant.co.in ═══════════════════════════════════════════════ -->
   <url>
     <loc>https://tools.yaswant.co.in/</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://tools.yaswant.co.in/"/>
   </url>
 
   <!-- Cyber Security & Dev Tools (26 Standalone Pages) -->
-  <url><loc>https://tools.yaswant.co.in/01-password-strength-checker.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/02-csprng-password-generator.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/03-syslog-siem-log-analyzer.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/04-brute-force-rate-limiter.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/05-wifi-security-analyzer.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/06-network-packet-sniffer.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/07-malware-yara-scanner.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/08-stateful-firewall-simulator.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/09-sqli-auditor-pdo-converter.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/10-2fa-totp-authenticator-generator.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/11-keylogger-event-auditor.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/12-ipv4-subnet-cidr-calculator.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/13-http-security-headers-auditor.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/14-aes-256-gcm-web-encryptor.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/15-ip-geolocation-threat-inspector.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/16-sha256-sha1-hash-generator.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/17-jwt-token-decoder-inspector.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/18-dns-email-policy-inspector.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/19-xss-payload-sanitizer-auditor.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/20-url-safety-redirect-inspector.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/21-browser-port-reachability-scanner.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/22-base64-hex-encoder-decoder.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/23-gpa-sgpa-grade-calculator.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/24-code-beautifier-formatter.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/25-json-validator-linter.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://tools.yaswant.co.in/26-rest-api-tester.php</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/01-password-strength-checker.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/02-csprng-password-generator.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/03-syslog-siem-log-analyzer.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/04-brute-force-rate-limiter.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/05-wifi-security-analyzer.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/06-network-packet-sniffer.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/07-malware-yara-scanner.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/08-stateful-firewall-simulator.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/09-sqli-auditor-pdo-converter.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/10-2fa-totp-authenticator-generator.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/11-keylogger-event-auditor.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/12-ipv4-subnet-cidr-calculator.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/13-http-security-headers-auditor.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/14-aes-256-gcm-web-encryptor.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/15-ip-geolocation-threat-inspector.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/16-sha256-sha1-hash-generator.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/17-jwt-token-decoder-inspector.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/18-dns-email-policy-inspector.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/19-xss-payload-sanitizer-auditor.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/20-url-safety-redirect-inspector.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/21-browser-port-reachability-scanner.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/22-base64-hex-encoder-decoder.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/23-gpa-sgpa-grade-calculator.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/24-code-beautifier-formatter.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/25-json-validator-linter.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tools.yaswant.co.in/26-rest-api-tester.php</loc><lastmod>2026-09-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://tools.yaswant.co.in/json-formatter</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://tools.yaswant.co.in/jwt-decoder</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://tools.yaswant.co.in/base64-encoder</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>

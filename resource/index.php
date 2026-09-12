@@ -27,7 +27,7 @@ if (empty($dbResources)) {
       'size' => '18.4 MB',
       'downloads' => 3420,
       'color' => 'amber',
-      'url' => URL_TOOLS
+      'url' => '../api/download_tools_zip.php'
     ],
     [
       'id' => 102,
@@ -535,8 +535,8 @@ $filtered = array_values(array_filter($resources, function($r) use ($filterBranc
                   </div>
 
                   <?php if (!empty($r['url'])): 
-                    $isLocal = strpos($r['url'], 'uploads/resources/') === 0;
-                    $isExternal = strpos($r['url'], 'http') === 0;
+                    $isLocal = (strpos($r['url'], 'uploads/resources/') === 0 || strpos($r['url'], 'api/download_') !== false || stripos($r['url'], '.zip') !== false);
+                    $isExternal = (strpos($r['url'], 'http') === 0 && strpos($r['url'], 'yaswant.co.in') === false);
                   ?>
                     <a href="<?= htmlspecialchars($r['url']) ?>" 
                        <?= $isLocal ? 'download' : ($isExternal ? 'target="_blank" rel="noopener noreferrer"' : '') ?> 

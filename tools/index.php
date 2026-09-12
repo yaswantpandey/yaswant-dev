@@ -227,18 +227,24 @@ if ($q) {
             </p>
           </div>
 
-          <!-- Search -->
-          <form method="GET" class="relative w-full lg:w-72 shrink-0" role="search" aria-label="Search tools"
-                onsubmit="event.preventDefault(); applyToolFilters();">
-            <label for="tools-search" class="sr-only">Search tools</label>
-            <div class="cmd-search flex items-center gap-2 px-3 py-2.5">
-              <span class="material-symbols-outlined text-zinc-500 text-[18px] shrink-0" aria-hidden="true">search</span>
-              <input id="tools-search" name="q" value="<?= htmlspecialchars($q) ?>"
-                class="flex-1 bg-transparent text-white text-xs font-mono placeholder:text-zinc-600 outline-none"
-                placeholder="Search <?= array_sum(array_map('count', $toolSections)) ?>+ tools…" />
-              <kbd class="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 text-[9px] font-mono text-zinc-600">⌘K</kbd>
-            </div>
-          </form>
+          <!-- Action Buttons & Search -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+            <a href="<?= URL_RESOURCES ?>?branch=Tools" class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 font-mono text-xs font-semibold transition-all whitespace-nowrap active:scale-95 shadow-sm">
+              <span class="material-symbols-outlined text-[17px]">folder_zip</span> Download Tools (.ZIP)
+            </a>
+            <!-- Search -->
+            <form method="GET" class="relative w-full sm:w-64" role="search" aria-label="Search tools"
+                  onsubmit="event.preventDefault(); applyToolFilters();">
+              <label for="tools-search" class="sr-only">Search tools</label>
+              <div class="cmd-search flex items-center gap-2 px-3 py-2.5">
+                <span class="material-symbols-outlined text-zinc-500 text-[18px] shrink-0" aria-hidden="true">search</span>
+                <input id="tools-search" name="q" value="<?= htmlspecialchars($q) ?>"
+                  class="flex-1 bg-transparent text-white text-xs font-mono placeholder:text-zinc-600 outline-none"
+                  placeholder="Search <?= array_sum(array_map('count', $toolSections)) ?>+ tools…" />
+                <kbd class="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 text-[9px] font-mono text-zinc-600">⌘K</kbd>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 
@@ -251,6 +257,12 @@ if ($q) {
             <span class="material-symbols-outlined text-[14px]">apps</span>
             All (<?= array_sum(array_map('count', $toolSections)) ?>)
           </button>
+          <a href="<?= URL_RESOURCES ?>?branch=Tools" 
+            class="cat-pill px-3.5 py-1.5 text-[11px] flex items-center gap-1.5 border-amber-500/30 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+            title="Download offline tools zip files">
+            <span class="material-symbols-outlined text-[14px]">folder_zip</span>
+            Download ZIPs
+          </a>
           <button type="button" id="chip-cyber" onclick="filterTools('cyber', this)"
             class="cat-pill px-3.5 py-1.5 text-[11px] flex items-center gap-1.5"
             role="tab" aria-selected="false">

@@ -27,9 +27,10 @@ nexus_head(
 
       <p class="font-body-md text-xs text-on-surface-variant">Simulate authentication rate limiting against brute force attacks with exponential backoff timers.</p>
 
-      <div class="flex gap-xs">
-        <input type="text" id="brute-user" value="admin@yaswant.co.in" class="flex-1 bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-md py-sm text-xs font-mono text-on-surface outline-none"/>
-        <button onclick="simulateFailedLogin()" class="bg-red-500 hover:bg-red-400 text-white px-md py-sm rounded-xl font-mono text-xs font-bold">Failed Login Attempt</button>
+      <div class="flex flex-wrap gap-2">
+        <input type="text" id="brute-user" value="admin@yaswant.co.in" class="flex-1 min-w-[200px] bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-md py-sm text-xs font-mono text-on-surface outline-none"/>
+        <button onclick="simulateFailedLogin()" class="bg-red-500 hover:bg-red-400 text-white px-md py-sm rounded-xl font-mono text-xs font-bold transition-colors active:scale-95">Failed Login Attempt</button>
+        <button onclick="resetSimulator()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-md py-sm rounded-xl font-mono text-xs transition-colors active:scale-95">Reset</button>
       </div>
       
       <div id="brute-status" class="bg-surface-container-lowest p-md rounded-xl text-xs font-mono text-emerald-400 border border-outline-variant/20">
@@ -43,6 +44,13 @@ nexus_head(
 <script>
   let failedLoginCount = 0;
 
+  function resetSimulator() {
+    failedLoginCount = 0;
+    const status = document.getElementById('brute-status');
+    status.innerHTML = 'Account status: Normal. Failed attempts: 0 / 5 limit.';
+    status.className = 'bg-surface-container-lowest p-md rounded-xl text-xs font-mono text-emerald-400 border border-outline-variant/20';
+  }
+
   function simulateFailedLogin() {
     failedLoginCount++;
     const user = document.getElementById('brute-user').value;
@@ -50,8 +58,8 @@ nexus_head(
 
     if (failedLoginCount >= 5) {
       const lockSeconds = Math.pow(2, failedLoginCount - 5) * 30;
-      status.innerHTML = `<span class="text-red-400 font-bold">[IP BANNED & ACCOUNT LOCKED]</span> 5/5 Threshold Exceeded for ${user}. Exponential Lockout Active: ${lockSeconds}s remaining.`;
-      status.className = 'bg-surface-container-lowest p-md rounded-xl text-xs font-mono border border-red-500/30';
+      status.innerHTML = `<span class="text-red-400 font-bold">[IP BANNED & ACCOUNT LOCKED]</span> 5/5 Threshold Exceeded for ${user}. Exponential Lockout Active: ${lockSeconds}s backoff timer.`;
+      status.className = 'bg-surface-container-lowest p-md rounded-xl text-xs font-mono border border-red-500/30 text-red-300';
     } else {
       status.innerHTML = `Attempt ${failedLoginCount} failed for ${user}. Warning: ${5 - failedLoginCount} attempts remaining before rate-limit lockout.`;
       status.className = 'bg-surface-container-lowest p-md rounded-xl text-xs font-mono text-amber-400 border border-amber-500/30';

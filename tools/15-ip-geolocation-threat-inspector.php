@@ -44,23 +44,47 @@ nexus_head(
   async function lookupIP() {
     const ip = document.getElementById('ip-input').value.trim();
     const out = document.getElementById('ip-results');
-    out.innerHTML = 'Fetching IP metadata for ' + ip + '...';
+    out.innerHTML = '<span class="text-zinc-400 animate-pulse">Fetching IP threat & geolocation intelligence for ' + (ip || 'current IP') + '...</span>';
 
     try {
-      const res = await fetch(`https://ipapi.co/${ip}/json/`);
-      const data = await res.json();
-      if (data.error) {
-        out.innerHTML = '<span class="text-red-400">' + data.reason + '</span>';
+      let data = null;
+      try {
+        const res = await fetch(`https://ipapi.co/${ip}/json/`);
+        if (res.ok) data = await res.json();
+      } catch (e) {}
+
+      if (!data || data.error) {
+        // High-reliability CORS fallback via ipwho.is
+        const fallbackRes = await fetch(`https://ipwho.is/${ip}`);
+        const fbData = await fallbackRes.json();
+        if (fbData && fbData.success !== false) {
+          data = {
+            ip: fbData.ip,
+            city: fbData.city,
+            region: fbData.region,
+            country_name: fbData.country,
+            country_code: fbData.country_code,
+            org: (fbData.connection && fbData.connection.isp) || (fbData.connection && fbData.connection.org) || 'Autonomous System',
+            asn: (fbData.connection && fbData.connection.asn) ? 'AS' + fbData.connection.asn : '',
+            latitude: fbData.latitude,
+            longitude: fbData.longitude,
+            timezone: fbData.timezone ? fbData.timezone.id : 'UTC'
+          };
+        }
+      }
+
+      if (!data || data.error) {
+        out.innerHTML = '<span class="text-red-400">' + (data && data.reason ? data.reason : 'Unable to retrieve IP metadata') + '</span>';
         return;
       }
       out.innerHTML = `
-        <div class="grid grid-cols-2 gap-md text-xs">
-          <div>IP Address: <strong class="text-emerald-400">${data.ip}</strong></div>
-          <div>City / Region: <span class="text-zinc-200">${data.city}, ${data.region}</span></div>
-          <div>Country: <span class="text-zinc-200">${data.country_name} (${data.country_code})</span></div>
-          <div>ISP / Org: <span class="text-zinc-200">${data.org || data.asn}</span></div>
-          <div>Latitude/Longitude: <span class="text-zinc-400">${data.latitude}, ${data.longitude}</span></div>
-          <div>Timezone: <span class="text-zinc-400">${data.timezone}</span></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+          <div class="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800">IP Address: <strong class="text-emerald-400 ml-1">${data.ip}</strong></div>
+          <div class="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800">City / Region: <span class="text-zinc-200 ml-1">${data.city}, ${data.region}</span></div>
+          <div class="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800">Country: <span class="text-zinc-200 ml-1">${data.country_name} (${data.country_code})</span></div>
+          <div class="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800">ISP / ASN: <span class="text-cyan-400 ml-1">${data.org} ${data.asn ? '(' + data.asn + ')' : ''}</span></div>
+          <div class="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800">Coordinates: <span class="text-zinc-400 ml-1">${data.latitude}, ${data.longitude}</span></div>
+          <div class="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800">Timezone: <span class="text-zinc-400 ml-1">${data.timezone}</span></div>
         </div>
       `;
     } catch (e) {
