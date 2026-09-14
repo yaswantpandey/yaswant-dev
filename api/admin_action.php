@@ -1,11 +1,27 @@
 <?php
 // api/admin_action.php — Unified Admin Action Handler (Full CRUD Engine)
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header('Content-Type: application/json; charset=utf-8');
 
 // Disable HTML error display to guarantee 100% clean JSON responses
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
+
+// Guarantee clean JSON even in the event of an unrecoverable PHP fatal error
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        if (!headers_sent()) {
+            header('Content-Type: application/json; charset=utf-8');
+        }
+        echo json_encode([
+            'success' => false,
+            'error'   => 'Fatal Error: ' . $error['message'] . ' in ' . basename($error['file']) . ':' . $error['line']
+        ]);
+    }
+});
 
 // Session authentication check
 if (empty($_SESSION['admin_logged_in'])) {
@@ -28,17 +44,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once __DIR__ . '/../includes/db.php';
-
 // Safe input extraction helpers
-function s(string $key, string $default = ''): string {
-    return trim($_POST[$key] ?? $default);
+if (!function_exists('s')) {
+    function s(string $key, string $default = ''): string {
+        return trim($_POST[$key] ?? $default);
+    }
 }
-function n(string $key, int $default = 0): int {
-    return (int)($_POST[$key] ?? $default);
+if (!function_exists('n')) {
+    function n(string $key, int $default = 0): int {
+        return (int)($_POST[$key] ?? $default);
+    }
 }
 
 try {
+    require_once __DIR__ . '/../includes/db.php';
     $action = $_POST['action'] ?? '';
     $pdo = get_db();
 

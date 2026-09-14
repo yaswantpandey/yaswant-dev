@@ -13,43 +13,59 @@ function get_db(): PDO
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
+        PDO::ATTR_TIMEOUT            => 5,
     ];
 
     // ─── 1. Multi-Port MySQL Discovery ──────────────────────────────────
     $attempts = [];
+    $port = defined('DB_PORT') ? (int)DB_PORT : 3306;
+
     if (defined('APP_ENV') && APP_ENV === 'development') {
-        $attempts[] = ['host' => DB_HOST,     'port' => 3306, 'user' => DB_USER, 'pass' => DB_PASS];
+        $attempts[] = ['host' => DB_HOST,     'port' => $port, 'user' => DB_USER, 'pass' => DB_PASS];
         $attempts[] = ['host' => '127.0.0.1', 'port' => 3308, 'user' => 'root',  'pass' => ''];
         $attempts[] = ['host' => 'localhost', 'port' => 3306, 'user' => 'root',  'pass' => ''];
         $attempts[] = ['host' => 'localhost', 'port' => 3308, 'user' => 'root',  'pass' => ''];
     } else {
-        $attempts[] = ['host' => DB_HOST,     'port' => 3306, 'user' => DB_USER, 'pass' => DB_PASS];
+        // Production (Hostinger)
+        $attempts[] = ['host' => DB_HOST, 'port' => $port, 'user' => DB_USER, 'pass' => DB_PASS];
+        if (DB_HOST === 'localhost') {
+            $attempts[] = ['host' => '127.0.0.1', 'port' => $port, 'user' => DB_USER, 'pass' => DB_PASS];
+        } elseif (DB_HOST === '127.0.0.1') {
+            $attempts[] = ['host' => 'localhost', 'port' => $port, 'user' => DB_USER, 'pass' => DB_PASS];
+        }
     }
 
+    $lastMysqlError = '';
     foreach ($attempts as $cfg) {
+        $portStr = !empty($cfg['port']) ? ";port={$cfg['port']}" : "";
         try {
-            $dsn = "mysql:host={$cfg['host']};port={$cfg['port']};dbname=" . DB_NAME . ";charset=utf8mb4";
+            $dsn = "mysql:host={$cfg['host']}{$portStr};dbname=" . DB_NAME . ";charset=utf8mb4";
             $pdo = new PDO($dsn, $cfg['user'], $cfg['pass'], $pdoOptions);
             init_db_schema($pdo);
+            seed_data_if_empty($pdo);
             return $pdo;
         } catch (PDOException $e) {
-            // If database does not exist, attempt to create it on this host/port
-            try {
-                $rootDsn = "mysql:host={$cfg['host']};port={$cfg['port']};charset=utf8mb4";
-                $rootPdo = new PDO($rootDsn, $cfg['user'], $cfg['pass'], $pdoOptions);
-                $rootPdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-                
-                $pdo = new PDO("mysql:host={$cfg['host']};port={$cfg['port']};dbname=" . DB_NAME . ";charset=utf8mb4", $cfg['user'], $cfg['pass'], $pdoOptions);
-                init_db_schema($pdo);
-                return $pdo;
-            } catch (Exception $createEx) {
-                // Continue to next port/host attempt
+            $lastMysqlError = $e->getMessage();
+            // In local development only, attempt to auto-create database if it doesn't exist
+            if (defined('APP_ENV') && APP_ENV === 'development') {
+                try {
+                    $rootDsn = "mysql:host={$cfg['host']}{$portStr};charset=utf8mb4";
+                    $rootPdo = new PDO($rootDsn, $cfg['user'], $cfg['pass'], $pdoOptions);
+                    $rootPdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                    
+                    $pdo = new PDO("mysql:host={$cfg['host']}{$portStr};dbname=" . DB_NAME . ";charset=utf8mb4", $cfg['user'], $cfg['pass'], $pdoOptions);
+                    init_db_schema($pdo);
+                    seed_data_if_empty($pdo);
+                    return $pdo;
+                } catch (Exception $createEx) {
+                    // Continue to next port/host attempt
+                }
             }
         }
     }
 
     // ─── 2. Zero-Crash Fallback: SQLite Local Storage ────────────────────
-    // If MySQL service is stopped or unreachable, fallback to local SQLite database
+    // If MySQL service is unreachable, fallback to local SQLite database
     try {
         $dataDir = __DIR__ . '/../data';
         if (!is_dir($dataDir)) {
@@ -59,11 +75,12 @@ function get_db(): PDO
         $pdo = new PDO("sqlite:" . $sqliteFile, null, null, $pdoOptions);
         $pdo->exec("PRAGMA journal_mode = WAL;");
         init_db_schema($pdo);
-        seed_sqlite_data_if_empty($pdo);
+        seed_data_if_empty($pdo);
         return $pdo;
     } catch (Exception $sqliteErr) {
-        error_log("Database Connection Error (MySQL & SQLite): " . $sqliteErr->getMessage());
-        throw new Exception("Database Connection Error: Could not connect to MySQL or local SQLite storage.");
+        $msg = "Database Error: MySQL failed (" . $lastMysqlError . ") and SQLite fallback failed: " . $sqliteErr->getMessage();
+        error_log($msg);
+        throw new Exception($msg);
     }
 }
 
@@ -242,89 +259,106 @@ function init_db_schema(PDO $pdo): void
     $ensureCol($pdo, 'resources', 'download_url', 'VARCHAR(500) NULL');
 }
 
-function seed_sqlite_data_if_empty(PDO $pdo): void
+function seed_data_if_empty(PDO $pdo): void
 {
     try {
-        $count = (int) $pdo->query("SELECT COUNT(*) FROM courses")->fetchColumn();
-        if ($count > 0) return;
-
-        // Seed courses from data/courses.json if exists
-        $coursesJson = __DIR__ . '/../data/courses.json';
-        if (file_exists($coursesJson)) {
-            $data = json_decode(file_get_contents($coursesJson), true);
-            if (is_array($data)) {
-                $stmt = $pdo->prepare("INSERT INTO courses (title, tag, lessons, level, color, icon, playlist_url, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                foreach ($data as $c) {
-                    $stmt->execute([
-                        $c['title'] ?? 'Course Title',
-                        $c['tag'] ?? 'General',
-                        (int)($c['lessons'] ?? 20),
-                        $c['level'] ?? 'Beginner',
-                        $c['color'] ?? 'primary',
-                        $c['icon'] ?? 'school',
-                        $c['playlist_url'] ?? '',
-                        $c['description'] ?? ''
-                    ]);
+        // 1. Seed courses if table is empty
+        $courseCount = (int) $pdo->query("SELECT COUNT(*) FROM courses")->fetchColumn();
+        if ($courseCount === 0) {
+            $coursesJson = __DIR__ . '/../data/courses.json';
+            if (file_exists($coursesJson)) {
+                $data = json_decode(file_get_contents($coursesJson), true);
+                if (is_array($data)) {
+                    $stmt = $pdo->prepare("INSERT INTO courses (title, tag, lessons, level, color, icon, playlist_url, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    foreach ($data as $c) {
+                        $stmt->execute([
+                            $c['title'] ?? 'Course Title',
+                            $c['tag'] ?? 'General',
+                            (int)($c['lessons'] ?? 20),
+                            $c['level'] ?? 'Beginner',
+                            $c['color'] ?? 'primary',
+                            $c['icon'] ?? 'school',
+                            $c['playlist_url'] ?? '',
+                            $c['description'] ?? ''
+                        ]);
+                    }
                 }
             }
         }
 
-        // Seed jobs from data/jobs.json if exists
-        $jobsJson = __DIR__ . '/../data/jobs.json';
-        if (file_exists($jobsJson)) {
-            $data = json_decode(file_get_contents($jobsJson), true);
-            if (is_array($data)) {
-                $stmt = $pdo->prepare("INSERT INTO jobs (title, company, location, pay, tags, color, apply_url, apply_link, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                foreach ($data as $j) {
-                    $tags = isset($j['tags']) ? (is_array($j['tags']) ? json_encode($j['tags']) : $j['tags']) : '[]';
-                    $url = $j['apply_url'] ?? $j['apply_link'] ?? '';
-                    $stmt->execute([
-                        $j['title'] ?? 'Software Engineer Intern',
-                        $j['company'] ?? 'TechCorp',
-                        $j['location'] ?? 'Remote',
-                        $j['pay'] ?? '₹25,000/month',
-                        $tags,
-                        $j['color'] ?? 'primary',
-                        $url,
-                        $url,
-                        $j['deadline'] ?? null
-                    ]);
+        // 2. Seed jobs if table is empty
+        $jobCount = (int) $pdo->query("SELECT COUNT(*) FROM jobs")->fetchColumn();
+        if ($jobCount === 0) {
+            $jobsJson = __DIR__ . '/../data/jobs.json';
+            if (file_exists($jobsJson)) {
+                $data = json_decode(file_get_contents($jobsJson), true);
+                if (is_array($data)) {
+                    $stmt = $pdo->prepare("INSERT INTO jobs (title, company, location, pay, tags, color, apply_url, apply_link, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    foreach ($data as $j) {
+                        $tags = isset($j['tags']) ? (is_array($j['tags']) ? json_encode($j['tags']) : $j['tags']) : '[]';
+                        $url = $j['apply_url'] ?? $j['apply_link'] ?? '';
+                        $stmt->execute([
+                            $j['title'] ?? 'Software Engineer Intern',
+                            $j['company'] ?? 'TechCorp',
+                            $j['location'] ?? 'Remote',
+                            $j['pay'] ?? '₹25,000/month',
+                            $tags,
+                            $j['color'] ?? 'primary',
+                            $url,
+                            $url,
+                            $j['deadline'] ?? null
+                        ]);
+                    }
                 }
             }
         }
 
-        // Seed articles from data/articles.json if exists
-        $articlesJson = __DIR__ . '/../data/articles.json';
-        if (file_exists($articlesJson)) {
-            $data = json_decode(file_get_contents($articlesJson), true);
-            if (is_array($data)) {
-                $stmt = $pdo->prepare("INSERT INTO articles (cat, title, excerpt, content, author, read_time, img) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                foreach ($data as $a) {
-                    $stmt->execute([
-                        $a['cat'] ?? 'Technical',
-                        $a['title'] ?? 'Sample Article',
-                        $a['excerpt'] ?? '',
-                        $a['content'] ?? '<p>Article content...</p>',
-                        $a['author'] ?? 'Yaswant Team',
-                        $a['read'] ?? $a['readTime'] ?? '5 min',
-                        $a['img'] ?? 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97'
-                    ]);
+        // 3. Seed articles if table is empty
+        $articleCount = (int) $pdo->query("SELECT COUNT(*) FROM articles")->fetchColumn();
+        if ($articleCount === 0) {
+            $articlesJson = __DIR__ . '/../data/articles.json';
+            if (file_exists($articlesJson)) {
+                $data = json_decode(file_get_contents($articlesJson), true);
+                if (is_array($data)) {
+                    $stmt = $pdo->prepare("INSERT INTO articles (cat, title, excerpt, content, author, read_time, img) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    foreach ($data as $a) {
+                        $stmt->execute([
+                            $a['cat'] ?? 'Technical',
+                            $a['title'] ?? 'Sample Article',
+                            $a['excerpt'] ?? '',
+                            $a['content'] ?? '<p>Article content...</p>',
+                            $a['author'] ?? 'Yaswant Team',
+                            $a['read'] ?? $a['readTime'] ?? '5 min',
+                            $a['img'] ?? 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97'
+                        ]);
+                    }
                 }
             }
         }
 
-        // Seed resources default list
-        $sampleResources = [
-            ['CS', 'S3', 'Notes', 'Data Structures & Algorithms Complete Notes', 'Yaswant Pandey', '2.8 MB', 'primary', 'https://drive.google.com'],
-            ['CS', 'S4', 'Notes', 'Operating System Kernel & Concurrency Architecture', 'Yaswant Pandey', '3.4 MB', 'secondary', 'https://drive.google.com'],
-            ['CS', 'S5', 'Notes', 'Database Management Systems & SQL Optimization', 'Yaswant Pandey', '1.9 MB', 'tertiary', 'https://drive.google.com'],
-            ['CS', 'S6', 'PYQ',   'Computer Networks 5-Year Solved Question Bank', 'Yaswant Pandey', '4.2 MB', 'green', 'https://drive.google.com'],
-        ];
-        $stmt = $pdo->prepare("INSERT INTO resources (branch, sem, type, title, by_author, file_size, color, download_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        foreach ($sampleResources as $r) {
-            $stmt->execute($r);
+        // 4. Seed resources if table is empty
+        $resCount = (int) $pdo->query("SELECT COUNT(*) FROM resources")->fetchColumn();
+        if ($resCount === 0) {
+            $sampleResources = [
+                ['CS', 'S3', 'Notes', 'Data Structures & Algorithms Complete Notes', 'Yaswant Pandey', '2.8 MB', 'primary', 'https://drive.google.com'],
+                ['CS', 'S4', 'Notes', 'Operating System Kernel & Concurrency Architecture', 'Yaswant Pandey', '3.4 MB', 'secondary', 'https://drive.google.com'],
+                ['CS', 'S5', 'Notes', 'Database Management Systems & SQL Optimization', 'Yaswant Pandey', '1.9 MB', 'tertiary', 'https://drive.google.com'],
+                ['CS', 'S6', 'PYQ',   'Computer Networks 5-Year Solved Question Bank', 'Yaswant Pandey', '4.2 MB', 'green', 'https://drive.google.com'],
+            ];
+            $stmt = $pdo->prepare("INSERT INTO resources (branch, sem, type, title, by_author, file_size, color, download_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            foreach ($sampleResources as $r) {
+                $stmt->execute($r);
+            }
+        }
+
+        // 5. Seed default admin if admin_users is empty
+        $adminCount = (int) $pdo->query("SELECT COUNT(*) FROM admin_users")->fetchColumn();
+        if ($adminCount === 0 && defined('ADMIN_USER') && defined('ADMIN_PASS')) {
+            $hash = password_hash(ADMIN_PASS, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("INSERT INTO admin_users (username, email, password_hash, role) VALUES (?, ?, ?, 'superadmin')");
+            $stmt->execute([ADMIN_USER, 'admin@yaswant.co.in', $hash]);
         }
     } catch (Exception $e) {
-        error_log("Seed SQLite Data Notice: " . $e->getMessage());
+        error_log("Seed DB Data Notice: " . $e->getMessage());
     }
 }
