@@ -391,20 +391,21 @@ nexus_head(
           <a href="<?= URL_TOOLS ?>" class="pill-tag shrink-0 active:scale-95">#CyberTools</a>
         </div>
 
-        <!-- ── Fast App Launch — 4×4 Vertical Grid ── -->
-        <div class="w-full max-w-sm mx-auto mb-8 px-2">
+        <!-- ── Fast App Launch — Responsive: 3×3 grid mobile | horizontal scroll laptop ── -->
+        <div class="w-full max-w-sm md:max-w-2xl mx-auto mb-8 px-2">
           <div class="flex items-center justify-between px-1 mb-4">
             <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-400 font-semibold flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Fast App Launch
             </span>
-            <span class="text-[10px] font-mono text-zinc-600">9 Apps</span>
+            <span class="text-[10px] font-mono text-zinc-600 md:hidden">9 Apps</span>
+            <span class="text-[10px] font-mono text-zinc-600 hidden md:inline">Swipe horizontally &rarr;</span>
           </div>
 
-          <!-- 4-column grid -->
-          <div class="grid grid-cols-4 gap-y-5 gap-x-2">
+          <!-- Mobile: 3-col grid | Laptop: horizontal scroll flex -->
+          <div class="grid grid-cols-3 gap-y-5 gap-x-3 md:grid-cols-none md:flex md:flex-row md:items-center md:gap-4 md:overflow-x-auto md:no-scrollbar md:pb-2 md:snap-x">
 
             <!-- Tools -->
-            <a href="<?= URL_TOOLS ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_TOOLS ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-700/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_4px_16px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:border-emerald-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">terminal</span>
                 <span class="absolute -top-1 -right-1 bg-emerald-500 text-black text-[8px] font-black font-mono px-1.5 leading-4 rounded-full shadow">26+</span>
@@ -413,7 +414,7 @@ nexus_head(
             </a>
 
             <!-- Resume -->
-            <a href="<?= URL_RESUME ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_RESUME ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-700/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_4px_16px_rgba(6,182,212,0.15)] group-hover:scale-105 group-hover:border-cyan-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">description</span>
                 <span class="absolute -top-1 -right-1 bg-cyan-400 text-black text-[8px] font-black font-mono px-1.5 leading-4 rounded-full shadow">Free</span>
@@ -422,7 +423,7 @@ nexus_head(
             </a>
 
             <!-- Notes -->
-            <a href="<?= URL_RESOURCES ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_RESOURCES ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-indigo-700/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-[0_4px_16px_rgba(99,102,241,0.15)] group-hover:scale-105 group-hover:border-indigo-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">folder_open</span>
                 <span class="absolute -top-1 -right-1 bg-indigo-500 text-white text-[8px] font-bold font-mono px-1.5 leading-4 rounded-full shadow">PYQ</span>
@@ -431,7 +432,7 @@ nexus_head(
             </a>
 
             <!-- Image -->
-            <a href="<?= URL_IMAGE ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_IMAGE ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-700/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-[0_4px_16px_rgba(245,158,11,0.15)] group-hover:scale-105 group-hover:border-amber-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">image</span>
                 <span class="absolute -top-1 -right-1 bg-amber-400 text-black text-[8px] font-black font-mono px-1 leading-4 rounded-full shadow">KB</span>
@@ -440,7 +441,7 @@ nexus_head(
             </a>
 
             <!-- Projects -->
-            <a href="<?= URL_PROJECT ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_PROJECT ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-700/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-[0_4px_16px_rgba(244,63,94,0.15)] group-hover:scale-105 group-hover:border-rose-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">folder_special</span>
                 <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[8px] font-bold font-mono px-1 leading-4 rounded-full shadow">25+</span>
@@ -449,7 +450,7 @@ nexus_head(
             </a>
 
             <!-- Internships -->
-            <a href="<?= URL_INTERNSHIPS ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_INTERNSHIPS ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-teal-500/20 to-teal-700/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-[0_4px_16px_rgba(20,184,166,0.15)] group-hover:scale-105 group-hover:border-teal-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">work</span>
                 <span class="absolute -top-1 -right-1 bg-teal-400 text-black text-[8px] font-bold font-mono px-1 leading-4 rounded-full shadow">2026</span>
@@ -458,7 +459,7 @@ nexus_head(
             </a>
 
             <!-- Courses -->
-            <a href="<?= URL_COURSES ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_COURSES ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-violet-700/10 border border-violet-500/30 flex items-center justify-center text-violet-400 shadow-[0_4px_16px_rgba(139,92,246,0.15)] group-hover:scale-105 group-hover:border-violet-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">school</span>
               </div>
@@ -466,7 +467,7 @@ nexus_head(
             </a>
 
             <!-- Blog -->
-            <a href="<?= URL_BLOG ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_BLOG ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-700/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-[0_4px_16px_rgba(168,85,247,0.15)] group-hover:scale-105 group-hover:border-purple-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">article</span>
               </div>
@@ -474,7 +475,7 @@ nexus_head(
             </a>
 
             <!-- Dashboard -->
-            <a href="<?= URL_DASHBOARD ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform">
+            <a href="<?= URL_DASHBOARD ?>" class="fast-app-item flex flex-col items-center gap-1.5 group active:scale-90 transition-transform md:shrink-0 md:snap-start md:w-[66px]">
               <div class="relative w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-700/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-[0_4px_16px_rgba(59,130,246,0.15)] group-hover:scale-105 group-hover:border-blue-400 transition-all">
                 <span class="material-symbols-outlined text-[24px]">dashboard</span>
               </div>
@@ -483,6 +484,7 @@ nexus_head(
 
           </div>
         </div>
+
 
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-sm sm:max-w-none mx-auto">
