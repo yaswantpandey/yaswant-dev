@@ -2,8 +2,8 @@
 // admin.php — Yaswant Dev Admin Control Center (Full Management Dashboard)
 session_start();
 
-// Auto-expire admin session after 15 minutes of inactivity
-if (!empty($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 900)) {
+// Auto-expire admin session after 2 hours of inactivity
+if (!empty($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 7200)) {
   session_unset();
   session_destroy();
   header('Location: admin_login.php?timeout=1');
@@ -519,7 +519,7 @@ nexus_head(
               </div>
               <div class="flex justify-between p-sm bg-surface-container-lowest rounded-lg border border-outline-variant/10">
                 <span class="text-on-surface-variant">Session Idle Timeout</span>
-                <span class="text-secondary font-bold">15 Minutes Auto-Expire</span>
+                <span class="text-secondary font-bold">2 Hours Auto-Expire</span>
               </div>
               <div class="flex justify-between p-sm bg-surface-container-lowest rounded-lg border border-outline-variant/10">
                 <span class="text-on-surface-variant">Server Timezone</span>
@@ -1105,6 +1105,30 @@ nexus_head(
     submitAdminForm(e.target, id ? 'edit_article' : 'add_article', 'modal-add-article', 'article-btn-submit');
   }
 
+  // ── Safe API JSON Parser ──────────────────────────────────
+  async function callAdminApi(formData) {
+    const r = await fetch('api/admin_action.php', { method: 'POST', body: formData });
+    const text = await r.text();
+    let res;
+    try {
+      res = JSON.parse(text);
+    } catch (e) {
+      if (r.status === 401 || text.includes('admin_login') || text.includes('Unauthorized')) {
+        alert('Your admin session has expired. Please log in again.');
+        window.location.href = 'admin_login.php?timeout=1';
+        return { success: false, error: 'Session expired' };
+      }
+      const clean = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      throw new Error(clean.substring(0, 160) || ('Server returned HTTP status ' + r.status));
+    }
+    if (res && res.logged_out) {
+      alert(res.error || 'Your admin session has expired. Please log in again.');
+      window.location.href = 'admin_login.php?timeout=1';
+      return res;
+    }
+    return res;
+  }
+
   // ── Core Submit Engine ─────────────────────────────────────
   function submitAdminForm(formEl, action, modalId, btnId) {
     const btn = document.getElementById(btnId);
@@ -1115,23 +1139,23 @@ nexus_head(
     const formData = new FormData(formEl);
     formData.set('action', action);
 
-    fetch('api/admin_action.php', { method: 'POST', body: formData })
-      .then(r => r.json())
+    callAdminApi(formData)
       .then(res => {
+        if (!res) return;
         btn.innerText = originalText;
         btn.classList.remove('btn-loading');
         if (res.success) {
           toast('✓ ' + (res.message || 'Saved successfully'), 'success');
           closeModal(modalId);
           setTimeout(() => window.location.reload(), 900);
-        } else {
+        } else if (!res.logged_out) {
           toast('✗ ' + (res.error || 'Operation failed'), 'error');
         }
       })
       .catch(err => {
         btn.innerText = originalText;
         btn.classList.remove('btn-loading');
-        toast('Network error: ' + err.message, 'error');
+        toast('Server error: ' + err.message, 'error');
       });
   }
 
@@ -1142,17 +1166,17 @@ nexus_head(
     const formData = new FormData();
     formData.append('action', action);
     formData.append('id', id);
-    fetch('api/admin_action.php', { method: 'POST', body: formData })
-      .then(r => r.json())
+    callAdminApi(formData)
       .then(res => {
+        if (!res) return;
         if (res.success) {
           toast('Deleted successfully', 'success');
           setTimeout(() => window.location.reload(), 700);
-        } else {
+        } else if (!res.logged_out) {
           toast(res.error || 'Delete failed', 'error');
         }
       })
-      .catch(() => toast('Network error during delete', 'error'));
+      .catch(err => toast('Delete error: ' + err.message, 'error'));
   }
 
   // ── Delete Subscriber ──────────────────────────────────────
@@ -1161,12 +1185,17 @@ nexus_head(
     const formData = new FormData();
     formData.append('action', 'delete_subscriber');
     formData.append('email', email);
-    fetch('api/admin_action.php', { method: 'POST', body: formData })
-      .then(r => r.json())
+    callAdminApi(formData)
       .then(res => {
-        if (res.success) { toast('Subscriber removed', 'success'); setTimeout(() => window.location.reload(), 700); }
-        else toast(res.error || 'Delete failed', 'error');
-      });
+        if (!res) return;
+        if (res.success) {
+          toast('Subscriber removed', 'success');
+          setTimeout(() => window.location.reload(), 700);
+        } else if (!res.logged_out) {
+          toast(res.error || 'Delete failed', 'error');
+        }
+      })
+      .catch(err => toast('Remove error: ' + err.message, 'error'));
   }
 
   // ── Close modal on backdrop click ──────────────────────────

@@ -1,5 +1,5 @@
 <?php
-// includes/db.php — MySQL PDO Database Connection & Auto-Schema Initializer
+// includes/db.php — Multi-Port MySQL PDO Connection & Zero-Crash SQLite Engine
 require_once __DIR__ . '/../config.php';
 
 function get_db(): PDO
@@ -9,60 +9,73 @@ function get_db(): PDO
         return $pdo;
     }
 
-    try {
-        // Direct database connection with optimal PDO options
-        $pdo = new PDO(
-            "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-            DB_USER,
-            DB_PASS,
-            [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false,
-            ]
-        );
+    $pdoOptions = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+    ];
 
-        // Auto-initialize tables if missing
-        init_db_schema($pdo);
+    // ─── 1. Multi-Port MySQL Discovery ──────────────────────────────────
+    $attempts = [];
+    if (defined('APP_ENV') && APP_ENV === 'development') {
+        $attempts[] = ['host' => DB_HOST,     'port' => 3306, 'user' => DB_USER, 'pass' => DB_PASS];
+        $attempts[] = ['host' => '127.0.0.1', 'port' => 3308, 'user' => 'root',  'pass' => ''];
+        $attempts[] = ['host' => 'localhost', 'port' => 3306, 'user' => 'root',  'pass' => ''];
+        $attempts[] = ['host' => 'localhost', 'port' => 3308, 'user' => 'root',  'pass' => ''];
+    } else {
+        $attempts[] = ['host' => DB_HOST,     'port' => 3306, 'user' => DB_USER, 'pass' => DB_PASS];
+    }
 
-        return $pdo;
-    } catch (PDOException $e) {
-        // In local development, try creating database if it does not exist
-        if (defined('APP_ENV') && APP_ENV === 'development') {
+    foreach ($attempts as $cfg) {
+        try {
+            $dsn = "mysql:host={$cfg['host']};port={$cfg['port']};dbname=" . DB_NAME . ";charset=utf8mb4";
+            $pdo = new PDO($dsn, $cfg['user'], $cfg['pass'], $pdoOptions);
+            init_db_schema($pdo);
+            return $pdo;
+        } catch (PDOException $e) {
+            // If database does not exist, attempt to create it on this host/port
             try {
-                $rootPdo = new PDO(
-                    "mysql:host=" . DB_HOST . ";charset=utf8mb4",
-                    DB_USER,
-                    DB_PASS,
-                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-                );
+                $rootDsn = "mysql:host={$cfg['host']};port={$cfg['port']};charset=utf8mb4";
+                $rootPdo = new PDO($rootDsn, $cfg['user'], $cfg['pass'], $pdoOptions);
                 $rootPdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
                 
-                $pdo = new PDO(
-                    "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-                    DB_USER,
-                    DB_PASS,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    ]
-                );
+                $pdo = new PDO("mysql:host={$cfg['host']};port={$cfg['port']};dbname=" . DB_NAME . ";charset=utf8mb4", $cfg['user'], $cfg['pass'], $pdoOptions);
                 init_db_schema($pdo);
                 return $pdo;
-            } catch (Exception $ex) {
-                error_log("Local DB Create Fallback Failed: " . $ex->getMessage());
+            } catch (Exception $createEx) {
+                // Continue to next port/host attempt
             }
         }
-        error_log("Database Connection Error: " . $e->getMessage());
-        throw new Exception("Database Connection Error: " . $e->getMessage());
+    }
+
+    // ─── 2. Zero-Crash Fallback: SQLite Local Storage ────────────────────
+    // If MySQL service is stopped or unreachable, fallback to local SQLite database
+    try {
+        $dataDir = __DIR__ . '/../data';
+        if (!is_dir($dataDir)) {
+            @mkdir($dataDir, 0777, true);
+        }
+        $sqliteFile = $dataDir . '/engihub_local.sqlite';
+        $pdo = new PDO("sqlite:" . $sqliteFile, null, null, $pdoOptions);
+        $pdo->exec("PRAGMA journal_mode = WAL;");
+        init_db_schema($pdo);
+        seed_sqlite_data_if_empty($pdo);
+        return $pdo;
+    } catch (Exception $sqliteErr) {
+        error_log("Database Connection Error (MySQL & SQLite): " . $sqliteErr->getMessage());
+        throw new Exception("Database Connection Error: Could not connect to MySQL or local SQLite storage.");
     }
 }
 
 function init_db_schema(PDO $pdo): void
 {
+    $isSqlite = ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite');
+    $autoInc  = $isSqlite ? "INTEGER PRIMARY KEY AUTOINCREMENT" : "INT AUTO_INCREMENT PRIMARY KEY";
+    $tblOpt   = $isSqlite ? "" : "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `tools` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `slug` VARCHAR(100) UNIQUE NOT NULL,
             `name` VARCHAR(255) NOT NULL,
             `category` VARCHAR(100) NOT NULL DEFAULT 'Cyber Security',
@@ -74,12 +87,12 @@ function init_db_schema(PDO $pdo): void
             `is_active` TINYINT(1) NOT NULL DEFAULT 1,
             `usage_count` INT NOT NULL DEFAULT 0,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ) {$tblOpt};
     ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `resumes` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `title` VARCHAR(255) NOT NULL DEFAULT 'My ATS Resume',
             `full_name` VARCHAR(100) NOT NULL,
             `email` VARCHAR(191) NOT NULL,
@@ -93,13 +106,13 @@ function init_db_schema(PDO $pdo): void
             `projects_json` LONGTEXT NULL,
             `template_theme` VARCHAR(50) NOT NULL DEFAULT 'modern',
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) {$tblOpt};
     ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `resources` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `branch` VARCHAR(20) NOT NULL DEFAULT 'CS',
             `sem` VARCHAR(10) NOT NULL DEFAULT 'S1',
             `type` VARCHAR(50) NOT NULL DEFAULT 'Notes',
@@ -109,12 +122,12 @@ function init_db_schema(PDO $pdo): void
             `color` VARCHAR(20) NOT NULL DEFAULT 'primary',
             `download_url` VARCHAR(500) NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ) {$tblOpt};
     ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `courses` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `title` VARCHAR(255) NOT NULL,
             `tag` VARCHAR(100) NOT NULL DEFAULT 'General',
             `lessons` INT NOT NULL DEFAULT 10,
@@ -124,12 +137,12 @@ function init_db_schema(PDO $pdo): void
             `playlist_url` VARCHAR(500) NULL,
             `description` TEXT NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ) {$tblOpt};
     ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `jobs` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `title` VARCHAR(255) NOT NULL,
             `company` VARCHAR(255) NOT NULL,
             `location` VARCHAR(255) NOT NULL DEFAULT 'Remote',
@@ -140,12 +153,12 @@ function init_db_schema(PDO $pdo): void
             `apply_url` VARCHAR(500) NULL,
             `deadline` VARCHAR(100) NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ) {$tblOpt};
     ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `articles` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `cat` VARCHAR(100) NOT NULL DEFAULT 'Technical',
             `title` VARCHAR(255) NOT NULL,
             `excerpt` TEXT NULL,
@@ -156,12 +169,12 @@ function init_db_schema(PDO $pdo): void
             `is_published` TINYINT(1) NOT NULL DEFAULT 1,
             `views_count` INT NOT NULL DEFAULT 0,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ) {$tblOpt};
     ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `projects` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `title` VARCHAR(255) NOT NULL,
             `category` VARCHAR(100) NOT NULL DEFAULT 'Cyber Security',
             `tech_stack` VARCHAR(255) NOT NULL DEFAULT 'Python, Linux',
@@ -170,56 +183,148 @@ function init_db_schema(PDO $pdo): void
             `demo_url` VARCHAR(500) NULL,
             `description` TEXT NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ) {$tblOpt};
     ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `subscribers` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `email` VARCHAR(191) UNIQUE NOT NULL,
             `status` VARCHAR(20) NOT NULL DEFAULT 'active',
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ) {$tblOpt};
     ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `admin_users` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `id` {$autoInc},
             `username` VARCHAR(50) UNIQUE NOT NULL,
             `email` VARCHAR(191) UNIQUE NOT NULL,
             `password_hash` VARCHAR(255) NOT NULL,
             `role` VARCHAR(20) NOT NULL DEFAULT 'superadmin',
             `last_login` DATETIME NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ) {$tblOpt};
     ");
 
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS `analytics` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
-            `ip_address` VARCHAR(45) NULL,
-            `page_url` VARCHAR(255) NOT NULL,
-            `user_agent` VARCHAR(500) NULL,
-            `referrer` VARCHAR(500) NULL,
-            `visited_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    ");
-
-    // Dynamic Safe Migrations for existing deployments
-    $checkAndAdd = function(PDO $p, string $table, string $col, string $def) {
+    // Dynamic Safe Column Migrations
+    $ensureCol = function(PDO $p, string $table, string $col, string $def) use ($isSqlite) {
         try {
-            $check = $p->query("SHOW COLUMNS FROM `{$table}` LIKE '{$col}'");
-            if ($check && $check->rowCount() === 0) {
-                $p->exec("ALTER TABLE `{$table}` ADD COLUMN `{$col}` {$def}");
+            if ($isSqlite) {
+                $check = $p->query("PRAGMA table_info(`{$table}`)");
+                $exists = false;
+                if ($check) {
+                    while ($row = $check->fetch()) {
+                        if (strcasecmp($row['name'] ?? '', $col) === 0) {
+                            $exists = true;
+                            break;
+                        }
+                    }
+                }
+                if (!$exists) {
+                    $p->exec("ALTER TABLE `{$table}` ADD COLUMN `{$col}` {$def}");
+                }
+            } else {
+                $check = $p->query("SHOW COLUMNS FROM `{$table}` LIKE '{$col}'");
+                if ($check && !$check->fetch()) {
+                    $p->exec("ALTER TABLE `{$table}` ADD COLUMN `{$col}` {$def}");
+                }
             }
         } catch (Exception $e) {
-            // Non-critical fallback
+            // Ignore non-critical migration exception
         }
     };
 
-    $checkAndAdd($pdo, 'courses', 'description', 'TEXT NULL');
-    $checkAndAdd($pdo, 'jobs', 'apply_url', 'VARCHAR(500) NULL');
-    $checkAndAdd($pdo, 'jobs', 'apply_link', 'VARCHAR(500) NULL');
-    $checkAndAdd($pdo, 'jobs', 'deadline', 'VARCHAR(100) NULL');
-    $checkAndAdd($pdo, 'resources', 'download_url', 'VARCHAR(500) NULL');
+    $ensureCol($pdo, 'courses',   'description',  'TEXT NULL');
+    $ensureCol($pdo, 'jobs',      'apply_url',    'VARCHAR(500) NULL');
+    $ensureCol($pdo, 'jobs',      'apply_link',   'VARCHAR(500) NULL');
+    $ensureCol($pdo, 'jobs',      'deadline',     'VARCHAR(100) NULL');
+    $ensureCol($pdo, 'resources', 'download_url', 'VARCHAR(500) NULL');
+}
+
+function seed_sqlite_data_if_empty(PDO $pdo): void
+{
+    try {
+        $count = (int) $pdo->query("SELECT COUNT(*) FROM courses")->fetchColumn();
+        if ($count > 0) return;
+
+        // Seed courses from data/courses.json if exists
+        $coursesJson = __DIR__ . '/../data/courses.json';
+        if (file_exists($coursesJson)) {
+            $data = json_decode(file_get_contents($coursesJson), true);
+            if (is_array($data)) {
+                $stmt = $pdo->prepare("INSERT INTO courses (title, tag, lessons, level, color, icon, playlist_url, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                foreach ($data as $c) {
+                    $stmt->execute([
+                        $c['title'] ?? 'Course Title',
+                        $c['tag'] ?? 'General',
+                        (int)($c['lessons'] ?? 20),
+                        $c['level'] ?? 'Beginner',
+                        $c['color'] ?? 'primary',
+                        $c['icon'] ?? 'school',
+                        $c['playlist_url'] ?? '',
+                        $c['description'] ?? ''
+                    ]);
+                }
+            }
+        }
+
+        // Seed jobs from data/jobs.json if exists
+        $jobsJson = __DIR__ . '/../data/jobs.json';
+        if (file_exists($jobsJson)) {
+            $data = json_decode(file_get_contents($jobsJson), true);
+            if (is_array($data)) {
+                $stmt = $pdo->prepare("INSERT INTO jobs (title, company, location, pay, tags, color, apply_url, apply_link, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                foreach ($data as $j) {
+                    $tags = isset($j['tags']) ? (is_array($j['tags']) ? json_encode($j['tags']) : $j['tags']) : '[]';
+                    $url = $j['apply_url'] ?? $j['apply_link'] ?? '';
+                    $stmt->execute([
+                        $j['title'] ?? 'Software Engineer Intern',
+                        $j['company'] ?? 'TechCorp',
+                        $j['location'] ?? 'Remote',
+                        $j['pay'] ?? '₹25,000/month',
+                        $tags,
+                        $j['color'] ?? 'primary',
+                        $url,
+                        $url,
+                        $j['deadline'] ?? null
+                    ]);
+                }
+            }
+        }
+
+        // Seed articles from data/articles.json if exists
+        $articlesJson = __DIR__ . '/../data/articles.json';
+        if (file_exists($articlesJson)) {
+            $data = json_decode(file_get_contents($articlesJson), true);
+            if (is_array($data)) {
+                $stmt = $pdo->prepare("INSERT INTO articles (cat, title, excerpt, content, author, read_time, img) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                foreach ($data as $a) {
+                    $stmt->execute([
+                        $a['cat'] ?? 'Technical',
+                        $a['title'] ?? 'Sample Article',
+                        $a['excerpt'] ?? '',
+                        $a['content'] ?? '<p>Article content...</p>',
+                        $a['author'] ?? 'Yaswant Team',
+                        $a['read'] ?? $a['readTime'] ?? '5 min',
+                        $a['img'] ?? 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97'
+                    ]);
+                }
+            }
+        }
+
+        // Seed resources default list
+        $sampleResources = [
+            ['CS', 'S3', 'Notes', 'Data Structures & Algorithms Complete Notes', 'Yaswant Pandey', '2.8 MB', 'primary', 'https://drive.google.com'],
+            ['CS', 'S4', 'Notes', 'Operating System Kernel & Concurrency Architecture', 'Yaswant Pandey', '3.4 MB', 'secondary', 'https://drive.google.com'],
+            ['CS', 'S5', 'Notes', 'Database Management Systems & SQL Optimization', 'Yaswant Pandey', '1.9 MB', 'tertiary', 'https://drive.google.com'],
+            ['CS', 'S6', 'PYQ',   'Computer Networks 5-Year Solved Question Bank', 'Yaswant Pandey', '4.2 MB', 'green', 'https://drive.google.com'],
+        ];
+        $stmt = $pdo->prepare("INSERT INTO resources (branch, sem, type, title, by_author, file_size, color, download_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        foreach ($sampleResources as $r) {
+            $stmt->execute($r);
+        }
+    } catch (Exception $e) {
+        error_log("Seed SQLite Data Notice: " . $e->getMessage());
+    }
 }
