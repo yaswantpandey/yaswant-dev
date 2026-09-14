@@ -110,14 +110,17 @@ nexus_head(
       <div class="flex items-center gap-2 overflow-x-auto pb-xs border-b border-outline-variant/20">
         <?php
         $tabs = [
-          'overview'    => ['label' => 'Overview', 'icon' => 'dashboard'],
-          'resources'   => ['label' => 'Resources (' . count($resources) . ')', 'icon' => 'folder_open'],
-          'courses'     => ['label' => 'Courses (' . count($courses) . ')', 'icon' => 'school'],
-          'internships' => ['label' => 'Internships (' . count($jobs) . ')', 'icon' => 'terminal'],
-          'blog'        => ['label' => 'Blog CMS (' . count($articles) . ')', 'icon' => 'article'],
-          'tools'       => ['label' => 'Cyber Tools (26)', 'icon' => 'build'],
-          'subscribers' => ['label' => 'Subscribers (' . count($subscribers) . ')', 'icon' => 'mail'],
-          'settings'    => ['label' => 'Diagnostics & Settings', 'icon' => 'settings'],
+          'overview'      => ['label' => 'Overview', 'icon' => 'dashboard'],
+          'resources'     => ['label' => 'Resources (' . count($resources) . ')', 'icon' => 'folder_open'],
+          'courses'       => ['label' => 'Courses (' . count($courses) . ')', 'icon' => 'school'],
+          'internships'   => ['label' => 'Internships (' . count($jobs) . ')', 'icon' => 'terminal'],
+          'blog'          => ['label' => 'Blog CMS (' . count($articles) . ')', 'icon' => 'article'],
+          'tools'         => ['label' => 'Cyber Tools (26)', 'icon' => 'build'],
+          'subscribers'   => ['label' => 'Subscribers (' . count($subscribers) . ')', 'icon' => 'mail'],
+          'announcements' => ['label' => 'Announcements', 'icon' => 'campaign'],
+          'analytics'     => ['label' => 'Analytics', 'icon' => 'analytics'],
+          'activity'      => ['label' => 'Activity Log', 'icon' => 'history'],
+          'settings'      => ['label' => 'Settings', 'icon' => 'settings'],
         ];
         foreach ($tabs as $key => $t):
           $active = ($tab === $key);
@@ -391,16 +394,24 @@ nexus_head(
             </div>
           </div>
           <div id="grid-articles" class="grid grid-cols-1 md:grid-cols-2 gap-md">
-            <?php foreach ($articles as $a): ?>
-              <div class="card-item bg-surface-container rounded-xl p-md shadow-md border border-outline-variant/10 flex flex-col justify-between">
+            <?php foreach ($articles as $a):
+              $status = $a['status'] ?? 'published';
+            ?>
+              <div class="card-item bg-surface-container rounded-xl p-md shadow-md border border-outline-variant/10 flex flex-col justify-between <?= $status === 'draft' ? 'opacity-60' : '' ?>">
                 <div>
                   <div class="flex justify-between items-start mb-sm">
-                    <span class="bg-surface-variant px-2 py-0.5 rounded text-xs font-label-sm uppercase text-on-surface"><?= htmlspecialchars($a['cat']) ?></span>
                     <div class="flex items-center gap-xs">
-                      <a href="<?= URL_BLOG ?>/post.php?id=<?= $a['id'] ?>" target="_blank" class="text-emerald-400 hover:bg-emerald-500/10 p-1 rounded" title="View Published Post">
+                      <span class="bg-surface-variant px-2 py-0.5 rounded text-xs font-label-sm uppercase text-on-surface"><?= htmlspecialchars($a['cat']) ?></span>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold <?= $status === 'published' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400' ?>"><?= strtoupper($status) ?></span>
+                    </div>
+                    <div class="flex items-center gap-xs">
+                      <a href="<?= URL_BLOG ?>/post.php?id=<?= $a['id'] ?>" target="_blank" class="text-emerald-400 hover:bg-emerald-500/10 p-1 rounded" title="View Post">
                         <span class="material-symbols-outlined text-[18px]">visibility</span>
                       </a>
-                      <button onclick='editArticle(<?= json_encode($a) ?>)' class="text-primary hover:bg-primary/10 p-1 rounded" title="Edit Article Content">
+                      <button onclick="toggleArticleStatus(<?= $a['id'] ?>, this)" class="<?= $status === 'published' ? 'text-amber-400 hover:bg-amber-500/10' : 'text-emerald-400 hover:bg-emerald-500/10' ?> p-1 rounded" title="Toggle Draft/Published">
+                        <span class="material-symbols-outlined text-[18px]"><?= $status === 'published' ? 'archive' : 'unarchive' ?></span>
+                      </button>
+                      <button onclick='editArticle(<?= json_encode($a) ?>)' class="text-primary hover:bg-primary/10 p-1 rounded" title="Edit Article">
                         <span class="material-symbols-outlined text-[18px]">edit</span>
                       </button>
                       <button onclick="deleteItem('delete_article', '<?= $a['id'] ?>')" class="text-error hover:bg-error/10 p-1 rounded" title="Delete Article">
@@ -468,8 +479,11 @@ nexus_head(
               <h2 class="font-headline-md text-headline-md text-on-surface">Newsletter Subscribers List</h2>
               <p class="text-xs text-on-surface-variant font-mono">Live registered subscribers from public footer</p>
             </div>
-            <div class="flex items-center gap-xs w-full sm:w-auto">
-              <input type="text" id="search-subscribers" oninput="filterTable('search-subscribers', 'tbl-subscribers')" placeholder="Filter email..." class="bg-surface-container border border-outline-variant/30 rounded-lg px-md py-xs text-xs text-on-surface font-mono outline-none w-full sm:w-64"/>
+            <div class="flex items-center gap-xs w-full sm:w-auto flex-wrap">
+              <input type="text" id="search-subscribers" oninput="filterTable('search-subscribers', 'tbl-subscribers')" placeholder="Filter email..." class="bg-surface-container border border-outline-variant/30 rounded-lg px-md py-xs text-xs text-on-surface font-mono outline-none w-full sm:w-48"/>
+              <button id="btn-bulk-delete" onclick="bulkDeleteSubscribers()" class="hidden bg-error text-on-error px-md py-xs rounded-lg font-mono text-xs font-bold flex items-center gap-xs whitespace-nowrap">
+                <span class="material-symbols-outlined text-[16px]">delete_sweep</span> Delete Selected
+              </button>
               <button onclick="exportSubscribersCSV()" class="bg-emerald-500 text-black px-md py-xs rounded-lg font-mono text-xs font-bold flex items-center gap-xs whitespace-nowrap">
                 <span class="material-symbols-outlined text-[16px]">download</span> Export CSV
               </button>
@@ -479,6 +493,7 @@ nexus_head(
             <table id="tbl-subscribers" class="w-full text-left border-collapse text-sm">
               <thead>
                 <tr class="bg-surface-container-high text-on-surface-variant font-label-sm text-xs uppercase border-b border-outline-variant/20">
+                  <th class="p-md w-10"><input type="checkbox" id="cb-select-all" onchange="toggleAllSubscribers(this)" class="rounded" title="Select All"/></th>
                   <th class="p-md">Subscriber Email</th>
                   <th class="p-md">Date Subscribed</th>
                   <th class="p-md text-right">Actions</th>
@@ -487,6 +502,7 @@ nexus_head(
               <tbody class="divide-y divide-outline-variant/10">
                 <?php foreach ($subscribers as $s): ?>
                   <tr class="hover:bg-surface-container-high/50 transition-colors">
+                    <td class="p-md"><input type="checkbox" class="sub-cb rounded" value="<?= htmlspecialchars($s['email']) ?>" onchange="updateBulkBtn()"/></td>
                     <td class="p-md font-medium text-on-surface"><?= htmlspecialchars($s['email']) ?></td>
                     <td class="p-md text-on-surface-variant font-mono text-xs"><?= htmlspecialchars($s['date']) ?></td>
                     <td class="p-md text-right">
@@ -501,9 +517,138 @@ nexus_head(
           </div>
         </div>
 
+      <!-- TAB: ANNOUNCEMENTS -->
+      <?php elseif ($tab === 'announcements'): ?>
+        <div class="flex flex-col gap-md">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md">
+            <div>
+              <h2 class="font-headline-md text-headline-md text-on-surface">Site Announcements</h2>
+              <p class="text-xs text-on-surface-variant">Publish visible banners on your website for visitors</p>
+            </div>
+            <button onclick="openModal('modal-add-announcement')" class="bg-primary text-on-primary px-md py-xs rounded-lg font-label-sm text-xs flex items-center gap-xs whitespace-nowrap shadow-md">
+              <span class="material-symbols-outlined text-[16px]">campaign</span> New Announcement
+            </button>
+          </div>
+          <div id="announcements-list" class="flex flex-col gap-sm">
+            <div class="text-xs text-on-surface-variant font-mono animate-pulse">Loading announcements...</div>
+          </div>
+        </div>
+
+      <!-- TAB: ANALYTICS -->
+      <?php elseif ($tab === 'analytics'): ?>
+        <div class="flex flex-col gap-xl">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="font-headline-md text-headline-md text-on-surface">Platform Analytics</h2>
+              <p class="text-xs text-on-surface-variant">Live content counts and platform health metrics</p>
+            </div>
+            <button onclick="refreshStats()" id="btn-refresh-stats" class="bg-surface-container hover:bg-surface-container-high text-on-surface px-md py-sm rounded-lg font-label-sm text-xs flex items-center gap-xs border border-outline-variant/20 transition-all">
+              <span class="material-symbols-outlined text-[16px]">refresh</span> Refresh Live Stats
+            </button>
+          </div>
+
+          <!-- Live Stats Grid -->
+          <div id="analytics-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-md">
+            <?php
+            $analyticsItems = [
+              ['label'=>'Resources','value'=>count($resources),'icon'=>'folder_open','color'=>'text-primary','bg'=>'bg-primary/10'],
+              ['label'=>'Courses','value'=>count($courses),'icon'=>'school','color'=>'text-secondary','bg'=>'bg-secondary/10'],
+              ['label'=>'Internships','value'=>count($jobs),'icon'=>'terminal','color'=>'text-tertiary','bg'=>'bg-tertiary/10'],
+              ['label'=>'Articles','value'=>count($articles),'icon'=>'article','color'=>'text-primary','bg'=>'bg-primary/10'],
+              ['label'=>'Subscribers','value'=>count($subscribers),'icon'=>'mail','color'=>'text-emerald-400','bg'=>'bg-emerald-500/10'],
+            ];
+            foreach ($analyticsItems as $ai): ?>
+              <div class="bg-surface-container p-lg rounded-2xl shadow-md border border-outline-variant/10 flex flex-col gap-sm">
+                <div class="w-10 h-10 rounded-xl <?= $ai['bg'] ?> <?= $ai['color'] ?> flex items-center justify-center">
+                  <span class="material-symbols-outlined"><?= $ai['icon'] ?></span>
+                </div>
+                <div class="stat-value text-3xl font-bold <?= $ai['color'] ?>" data-stat="<?= strtolower($ai['label']) ?>"><?= $ai['value'] ?></div>
+                <div class="text-xs text-on-surface-variant font-label-sm"><?= $ai['label'] ?></div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+
+          <!-- System Health -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div class="bg-surface-container rounded-2xl p-lg shadow-md border border-outline-variant/10">
+              <h3 class="font-headline-md text-sm font-bold text-on-surface mb-md flex items-center gap-xs">
+                <span class="material-symbols-outlined text-emerald-400 text-[20px]">health_and_safety</span> System Health
+              </h3>
+              <div class="space-y-sm text-xs font-mono">
+                <div class="flex justify-between p-sm bg-surface-container-lowest rounded-lg">
+                  <span class="text-on-surface-variant">PHP Version</span>
+                  <span class="text-emerald-400 font-bold">PHP <?= phpversion() ?></span>
+                </div>
+                <div class="flex justify-between p-sm bg-surface-container-lowest rounded-lg">
+                  <span class="text-on-surface-variant">Memory Usage</span>
+                  <span class="text-secondary font-bold"><?= round(memory_get_usage(true)/1048576, 2) ?> MB</span>
+                </div>
+                <div class="flex justify-between p-sm bg-surface-container-lowest rounded-lg">
+                  <span class="text-on-surface-variant">Peak Memory</span>
+                  <span class="text-tertiary font-bold"><?= round(memory_get_peak_usage(true)/1048576, 2) ?> MB</span>
+                </div>
+                <div class="flex justify-between p-sm bg-surface-container-lowest rounded-lg">
+                  <span class="text-on-surface-variant">Server Time</span>
+                  <span id="live-clock" class="text-primary font-bold"><?= date('H:i:s') ?></span>
+                </div>
+                <div class="flex justify-between p-sm bg-surface-container-lowest rounded-lg">
+                  <span class="text-on-surface-variant">Uptime Since</span>
+                  <span class="text-on-surface font-bold"><?= date('Y-m-d', $_SESSION['last_activity'] - 7200) ?></span>
+                </div>
+              </div>
+            </div>
+            <div class="bg-surface-container rounded-2xl p-lg shadow-md border border-outline-variant/10">
+              <h3 class="font-headline-md text-sm font-bold text-on-surface mb-md flex items-center gap-xs">
+                <span class="material-symbols-outlined text-primary text-[20px]">pie_chart</span> Content Distribution
+              </h3>
+              <div class="space-y-sm">
+                <?php
+                $total = count($resources) + count($courses) + count($jobs) + count($articles);
+                $distItems = [
+                  ['label'=>'Resources','count'=>count($resources),'color'=>'bg-primary'],
+                  ['label'=>'Courses','count'=>count($courses),'color'=>'bg-secondary'],
+                  ['label'=>'Internships','count'=>count($jobs),'color'=>'bg-tertiary'],
+                  ['label'=>'Articles','count'=>count($articles),'color'=>'bg-emerald-500'],
+                ];
+                foreach ($distItems as $d):
+                  $pct = $total > 0 ? round($d['count'] / $total * 100) : 0;
+                ?>
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-on-surface-variant"><?= $d['label'] ?></span>
+                      <span class="text-on-surface font-bold"><?= $d['count'] ?> <span class="text-outline">(<?= $pct ?>%)</span></span>
+                    </div>
+                    <div class="w-full bg-surface-container-lowest rounded-full h-1.5">
+                      <div class="<?= $d['color'] ?> h-1.5 rounded-full transition-all duration-700" style="width:<?= $pct ?>%"></div>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- TAB: ACTIVITY LOG -->
+      <?php elseif ($tab === 'activity'): ?>
+        <div class="flex flex-col gap-md">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="font-headline-md text-headline-md text-on-surface">Admin Activity Log</h2>
+              <p class="text-xs text-on-surface-variant">Last 100 admin actions recorded by the system</p>
+            </div>
+            <button onclick="clearActivityLog()" class="bg-error/10 hover:bg-error text-error hover:text-on-error px-md py-xs rounded-lg font-label-sm text-xs flex items-center gap-xs transition-all">
+              <span class="material-symbols-outlined text-[16px]">delete_forever</span> Clear Log
+            </button>
+          </div>
+          <div id="activity-log-container" class="flex flex-col gap-xs">
+            <div class="text-xs text-on-surface-variant font-mono animate-pulse p-md">Loading activity log...</div>
+          </div>
+        </div>
+
       <!-- TAB: DIAGNOSTICS & SETTINGS -->
       <?php elseif ($tab === 'settings'): ?>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+          <!-- System Diagnostics -->
           <div class="bg-surface-container rounded-2xl p-lg shadow-lg border border-outline-variant/10 space-y-md">
             <h2 class="font-headline-md text-lg font-bold text-on-surface flex items-center gap-xs">
               <span class="material-symbols-outlined text-primary">dns</span> System Diagnostics
@@ -525,9 +670,14 @@ nexus_head(
                 <span class="text-on-surface-variant">Server Timezone</span>
                 <span class="text-tertiary font-bold"><?= date_default_timezone_get() ?> (<?= date('Y-m-d H:i:s') ?>)</span>
               </div>
+              <div class="flex justify-between p-sm bg-surface-container-lowest rounded-lg border border-outline-variant/10">
+                <span class="text-on-surface-variant">Memory Usage</span>
+                <span class="text-emerald-400 font-bold"><?= round(memory_get_usage(true)/1048576, 2) ?> MB / <?= round(memory_get_peak_usage(true)/1048576, 2) ?> MB peak</span>
+              </div>
             </div>
           </div>
 
+          <!-- Subdomain Routing -->
           <div class="bg-surface-container rounded-2xl p-lg shadow-lg border border-outline-variant/10 space-y-md">
             <h2 class="font-headline-md text-lg font-bold text-on-surface flex items-center gap-xs">
               <span class="material-symbols-outlined text-emerald-400">domain</span> Subdomain Routing Status
@@ -549,6 +699,43 @@ nexus_head(
                 <span class="text-on-surface-variant">Resume Domain</span>
                 <a href="<?= URL_RESUME ?>" target="_blank" class="text-emerald-400 hover:underline font-bold"><?= URL_RESUME ?></a>
               </div>
+            </div>
+          </div>
+
+          <!-- Change Admin Password -->
+          <div class="bg-surface-container rounded-2xl p-lg shadow-lg border border-outline-variant/10 space-y-md">
+            <h2 class="font-headline-md text-lg font-bold text-on-surface flex items-center gap-xs">
+              <span class="material-symbols-outlined text-error">lock_reset</span> Change Admin Password
+            </h2>
+            <form id="form-change-pass" onsubmit="handlePasswordChange(event)" class="space-y-sm">
+              <div>
+                <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Current Password</label>
+                <input type="password" id="cp-current" name="current_password" required placeholder="Enter current password" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-label-sm text-on-surface-variant mb-1">New Password (min 8 chars)</label>
+                <input type="password" id="cp-new" name="new_password" required minlength="8" placeholder="Enter new password" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Confirm New Password</label>
+                <input type="password" id="cp-confirm" name="confirm_password" required minlength="8" placeholder="Re-enter new password" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface text-sm" />
+              </div>
+              <button type="submit" id="cp-btn" class="w-full bg-error text-on-error py-sm rounded-lg font-label-sm font-bold text-sm hover:opacity-90 transition-opacity">Update Password</button>
+            </form>
+          </div>
+
+          <!-- Admin Quick Notes -->
+          <div class="bg-surface-container rounded-2xl p-lg shadow-lg border border-outline-variant/10 space-y-md">
+            <h2 class="font-headline-md text-lg font-bold text-on-surface flex items-center gap-xs">
+              <span class="material-symbols-outlined text-amber-400">sticky_note_2</span> Admin Quick Notes
+            </h2>
+            <p class="text-xs text-on-surface-variant">Private notes visible only to you. Auto-saved to database.</p>
+            <textarea id="admin-note-area" rows="6" placeholder="Write your private admin notes here..." class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface text-sm font-mono resize-none outline-none focus:border-primary/60 transition-colors"></textarea>
+            <div class="flex items-center justify-between">
+              <span id="note-saved-at" class="text-xs text-outline font-mono">Loading...</span>
+              <button onclick="saveAdminNote()" class="bg-amber-500 text-black px-md py-xs rounded-lg font-label-sm text-xs font-bold flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">save</span> Save Note
+              </button>
             </div>
           </div>
         </div>
@@ -1199,10 +1386,277 @@ nexus_head(
   }
 
   // ── Close modal on backdrop click ──────────────────────────
-  ['modal-add-resource','modal-add-course','modal-add-job','modal-add-article'].forEach(id => {
+  ['modal-add-resource','modal-add-course','modal-add-job','modal-add-article','modal-add-announcement'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('click', e => { if (e.target === el) closeModal(id); });
   });
+
+  // ── Toggle Article Status (Published / Draft) ─────────────
+  function toggleArticleStatus(id, btn) {
+    const fd = new FormData();
+    fd.append('action', 'toggle_article_status');
+    fd.append('id', id);
+    callAdminApi(fd)
+      .then(res => {
+        if (!res) return;
+        if (res.success) {
+          toast('✓ Article set to ' + res.status, 'success');
+          setTimeout(() => window.location.reload(), 800);
+        } else {
+          toast('✗ ' + (res.error || 'Failed'), 'error');
+        }
+      })
+      .catch(err => toast('Error: ' + err.message, 'error'));
+  }
+
+  // ── Subscriber Bulk Actions ───────────────────────────────
+  function toggleAllSubscribers(cb) {
+    document.querySelectorAll('.sub-cb').forEach(el => el.checked = cb.checked);
+    updateBulkBtn();
+  }
+  function updateBulkBtn() {
+    const checked = document.querySelectorAll('.sub-cb:checked').length;
+    const btn = document.getElementById('btn-bulk-delete');
+    if (btn) { btn.classList.toggle('hidden', checked === 0); btn.classList.toggle('flex', checked > 0); }
+  }
+  function bulkDeleteSubscribers() {
+    const emails = [...document.querySelectorAll('.sub-cb:checked')].map(el => el.value);
+    if (!emails.length) return;
+    if (!confirm(`Delete ${emails.length} subscriber(s)? This cannot be undone.`)) return;
+    const fd = new FormData();
+    fd.append('action', 'bulk_delete_subscribers');
+    fd.append('emails', emails.join(','));
+    callAdminApi(fd)
+      .then(res => {
+        if (!res) return;
+        if (res.success) { toast('✓ ' + res.message, 'success'); setTimeout(() => location.reload(), 700); }
+        else toast('✗ ' + (res.error || 'Failed'), 'error');
+      })
+      .catch(err => toast('Error: ' + err.message, 'error'));
+  }
+
+  // ── Analytics: Refresh Live Stats ────────────────────────
+  function refreshStats() {
+    const btn = document.getElementById('btn-refresh-stats');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">sync</span> Refreshing...'}
+    const fd = new FormData();
+    fd.append('action', 'get_stats');
+    callAdminApi(fd)
+      .then(res => {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">refresh</span> Refresh Live Stats'; }
+        if (res && res.success) {
+          Object.entries(res.stats).forEach(([key, val]) => {
+            const el = document.querySelector(`[data-stat="${key}"]`);
+            if (el) el.textContent = val;
+          });
+          toast('✓ Stats updated', 'success');
+        }
+      })
+      .catch(() => { if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">refresh</span> Refresh Live Stats'; } });
+  }
+
+  // ── Live Clock ────────────────────────────────────────────
+  function startLiveClock() {
+    const el = document.getElementById('live-clock');
+    if (!el) return;
+    setInterval(() => { el.textContent = new Date().toLocaleTimeString('en-IN'); }, 1000);
+  }
+  startLiveClock();
+
+  // ── Activity Log ─────────────────────────────────────────
+  function loadActivityLog() {
+    const container = document.getElementById('activity-log-container');
+    if (!container) return;
+    const fd = new FormData();
+    fd.append('action', 'get_activity_log');
+    callAdminApi(fd)
+      .then(res => {
+        if (!res || !res.success) { container.innerHTML = '<div class="text-xs text-error p-md">Failed to load log</div>'; return; }
+        if (!res.log || !res.log.length) { container.innerHTML = '<div class="text-xs text-on-surface-variant font-mono p-md">No activity recorded yet.</div>'; return; }
+        const actionLabels = { add_resource:'Added Resource', edit_resource:'Edited Resource', delete_resource:'Deleted Resource', add_course:'Added Course', edit_course:'Edited Course', delete_course:'Deleted Course', add_job:'Posted Internship', edit_job:'Edited Internship', delete_job:'Deleted Internship', add_article:'Published Article', edit_article:'Edited Article', delete_article:'Deleted Article', delete_subscriber:'Removed Subscriber', bulk_delete_subscribers:'Bulk Deleted Subscribers', announcement_add:'Added Announcement', article_status:'Toggled Article Status', password_change:'Changed Password' };
+        container.innerHTML = res.log.map(row => {
+          const label = actionLabels[row.action] || row.action;
+          return `<div class="flex items-start gap-md p-sm bg-surface-container rounded-lg border border-outline-variant/10">
+            <span class="material-symbols-outlined text-[18px] text-primary mt-0.5">task_alt</span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-sm">
+                <span class="text-sm text-on-surface font-medium">${label}</span>
+                <span class="text-[11px] text-outline font-mono whitespace-nowrap">${row.created_at}</span>
+              </div>
+              ${row.detail ? `<p class="text-xs text-on-surface-variant font-mono mt-0.5">${row.detail}</p>` : ''}
+              <span class="text-[10px] text-outline font-mono">IP: ${row.ip}</span>
+            </div>
+          </div>`;
+        }).join('');
+      })
+      .catch(() => { container.innerHTML = '<div class="text-xs text-error p-md">Network error loading log</div>'; });
+  }
+  if (document.getElementById('activity-log-container')) loadActivityLog();
+
+  function clearActivityLog() {
+    if (!confirm('Clear all activity log entries? This cannot be undone.')) return;
+    const fd = new FormData();
+    fd.append('action', 'clear_activity_log');
+    callAdminApi(fd)
+      .then(res => {
+        if (res && res.success) { toast('✓ Activity log cleared', 'success'); loadActivityLog(); }
+        else toast('✗ ' + (res?.error || 'Failed'), 'error');
+      })
+      .catch(err => toast('Error: ' + err.message, 'error'));
+  }
+
+  // ── Announcements Manager ─────────────────────────────────
+  function loadAnnouncements() {
+    const container = document.getElementById('announcements-list');
+    if (!container) return;
+    const fd = new FormData();
+    fd.append('action', 'get_announcements');
+    callAdminApi(fd)
+      .then(res => {
+        if (!res || !res.success) { container.innerHTML = '<div class="text-xs text-error">Failed to load</div>'; return; }
+        if (!res.announcements || !res.announcements.length) { container.innerHTML = '<div class="text-sm text-on-surface-variant bg-surface-container rounded-xl p-lg text-center">No announcements yet. Click "New Announcement" to add one.</div>'; return; }
+        const typeColors = { info: 'bg-primary/10 text-primary border-primary/20', warning: 'bg-amber-500/10 text-amber-400 border-amber-500/20', success: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', error: 'bg-error/10 text-error border-error/20' };
+        container.innerHTML = res.announcements.map(a => {
+          const colors = typeColors[a.type] || typeColors.info;
+          return `<div class="flex items-center gap-md p-md rounded-xl border ${colors} ${a.active==1 ? '' : 'opacity-50'}">
+            <span class="material-symbols-outlined text-[22px]">campaign</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium">${a.message}</p>
+              <div class="text-[11px] mt-0.5 flex gap-md">
+                <span class="font-mono opacity-70">${a.created_at}</span>
+                <span class="font-mono uppercase font-bold">${a.type}</span>
+                <span>${a.active==1 ? '✓ Active' : '✗ Hidden'}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-xs">
+              <button onclick="toggleAnnouncement(${a.id}, this)" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors" title="Toggle Visibility">
+                <span class="material-symbols-outlined text-[18px]">${a.active==1 ? 'visibility_off' : 'visibility'}</span>
+              </button>
+              <button onclick="deleteAnnouncement(${a.id})" class="p-1.5 rounded-lg hover:bg-error/20 transition-colors text-error" title="Delete">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+              </button>
+            </div>
+          </div>`;
+        }).join('');
+      })
+      .catch(() => { container.innerHTML = '<div class="text-xs text-error">Network error</div>'; });
+  }
+  if (document.getElementById('announcements-list')) loadAnnouncements();
+
+  function deleteAnnouncement(id) {
+    if (!confirm('Delete this announcement?')) return;
+    const fd = new FormData();
+    fd.append('action', 'delete_announcement');
+    fd.append('id', id);
+    callAdminApi(fd).then(res => { if (res?.success) { toast('✓ Announcement deleted', 'success'); loadAnnouncements(); } else toast('✗ ' + (res?.error || 'Failed'), 'error'); })
+      .catch(err => toast('Error: ' + err.message, 'error'));
+  }
+
+  function toggleAnnouncement(id) {
+    const fd = new FormData();
+    fd.append('action', 'toggle_announcement');
+    fd.append('id', id);
+    callAdminApi(fd).then(res => { if (res?.success) { toast('✓ Visibility toggled', 'success'); loadAnnouncements(); } else toast('✗ ' + (res?.error || 'Failed'), 'error'); })
+      .catch(err => toast('Error: ' + err.message, 'error'));
+  }
+
+  function handleAnnouncementSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('ann-btn-submit');
+    btn.innerText = 'Publishing...';
+    const fd = new FormData(e.target);
+    fd.append('action', 'add_announcement');
+    callAdminApi(fd)
+      .then(res => {
+        btn.innerText = 'Publish Announcement';
+        if (res?.success) { toast('✓ Announcement published', 'success'); closeModal('modal-add-announcement'); e.target.reset(); loadAnnouncements(); }
+        else toast('✗ ' + (res?.error || 'Failed'), 'error');
+      })
+      .catch(err => { btn.innerText = 'Publish Announcement'; toast('Error: ' + err.message, 'error'); });
+  }
+
+  // ── Admin Password Change ─────────────────────────────────
+  function handlePasswordChange(e) {
+    e.preventDefault();
+    const btn = document.getElementById('cp-btn');
+    btn.innerText = 'Updating...';
+    const fd = new FormData(e.target);
+    fd.append('action', 'change_password');
+    callAdminApi(fd)
+      .then(res => {
+        btn.innerText = 'Update Password';
+        if (res?.success) {
+          toast('✓ ' + res.message, 'success');
+          e.target.reset();
+          alert('Password updated!\n\nIMPORTANT: Copy the new bcrypt hash from the response and update your .env file.\n\n' + res.message);
+        } else {
+          toast('✗ ' + (res?.error || 'Failed'), 'error');
+        }
+      })
+      .catch(err => { btn.innerText = 'Update Password'; toast('Error: ' + err.message, 'error'); });
+  }
+
+  // ── Admin Quick Notes ─────────────────────────────────────
+  function loadAdminNote() {
+    const area = document.getElementById('admin-note-area');
+    const savedAt = document.getElementById('note-saved-at');
+    if (!area) return;
+    const fd = new FormData();
+    fd.append('action', 'get_note');
+    callAdminApi(fd)
+      .then(res => {
+        if (res?.success) {
+          area.value = res.note || '';
+          if (savedAt) savedAt.textContent = res.updated_at ? 'Last saved: ' + res.updated_at : 'No note saved yet';
+        }
+      })
+      .catch(() => {});
+  }
+  function saveAdminNote() {
+    const area = document.getElementById('admin-note-area');
+    const savedAt = document.getElementById('note-saved-at');
+    if (!area) return;
+    const fd = new FormData();
+    fd.append('action', 'save_note');
+    fd.append('note', area.value);
+    callAdminApi(fd)
+      .then(res => {
+        if (res?.success) { toast('✓ Note saved', 'success'); if (savedAt) savedAt.textContent = 'Last saved: just now'; }
+        else toast('✗ ' + (res?.error || 'Save failed'), 'error');
+      })
+      .catch(err => toast('Error: ' + err.message, 'error'));
+  }
+  if (document.getElementById('admin-note-area')) loadAdminNote();
+
 </script>
+
+<!-- MODAL: NEW ANNOUNCEMENT -->
+<div id="modal-add-announcement" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-md">
+  <div class="bg-surface-container rounded-2xl p-lg max-w-md w-full shadow-2xl border border-outline-variant/20">
+    <div class="flex justify-between items-center mb-md">
+      <h3 class="font-headline-md text-lg text-on-surface flex items-center gap-xs"><span class="material-symbols-outlined text-primary">campaign</span> New Announcement</h3>
+      <button onclick="closeModal('modal-add-announcement')" class="text-outline hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <form id="form-announcement" onsubmit="handleAnnouncementSubmit(event)">
+      <div class="space-y-sm mb-md">
+        <div>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Announcement Message *</label>
+          <textarea name="message" required rows="3" placeholder="e.g. New study notes for CSE Semester 4 are now available!" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface text-sm resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Type</label>
+          <select name="type" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface">
+            <option value="info">ℹ️ Info (Blue)</option>
+            <option value="success">✅ Success (Green)</option>
+            <option value="warning">⚠️ Warning (Amber)</option>
+            <option value="error">🔴 Alert (Red)</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" id="ann-btn-submit" class="w-full bg-primary text-on-primary py-sm rounded-lg font-label-sm font-bold">Publish Announcement</button>
+    </form>
+  </div>
+</div>
+
 </body>
 </html>
