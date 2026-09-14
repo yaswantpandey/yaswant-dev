@@ -154,9 +154,18 @@ if ($search) {
 
             <div class="flex items-center justify-between mt-5 pt-3 border-t border-zinc-900">
               <span class="text-xs font-mono font-bold text-emerald-400"><?= htmlspecialchars($j['pay']) ?></span>
-              <button onclick="alert('Application Portal: Opening official recruitment portal for <?= htmlspecialchars($j['company']) ?>...')" class="bg-emerald-500 hover:bg-emerald-400 text-black px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1 shadow-sm active:scale-95">
-                Apply Now <span class="material-symbols-outlined text-[13px]">open_in_new</span>
-              </button>
+              <?php 
+                $applyTarget = !empty($j['apply_url']) ? $j['apply_url'] : (!empty($j['apply_link']) ? $j['apply_link'] : null);
+              ?>
+              <?php if ($applyTarget): ?>
+                <a href="<?= htmlspecialchars($applyTarget) ?>" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-400 text-black px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1 shadow-sm active:scale-95">
+                  Apply Now <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+                </a>
+              <?php else: ?>
+                <button onclick="alert('Application Portal: Opening official recruitment portal for <?= htmlspecialchars($j['company']) ?>...')" class="bg-emerald-500 hover:bg-emerald-400 text-black px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1 shadow-sm active:scale-95">
+                  Apply Now <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+                </button>
+              <?php endif; ?>
             </div>
           </article>
         <?php endforeach; ?>

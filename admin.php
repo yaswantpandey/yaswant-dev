@@ -88,13 +88,13 @@ nexus_head(
           </div>
         </div>
         <div class="flex items-center gap-xs flex-wrap">
-          <button onclick="openModal('modal-add-resource')" class="bg-primary hover:bg-primary-fixed text-on-primary px-md py-sm rounded-lg font-label-sm transition-all flex items-center gap-xs text-xs shadow-md">
+          <button onclick="openResourceModal()" class="bg-primary hover:bg-primary-fixed text-on-primary px-md py-sm rounded-lg font-label-sm transition-all flex items-center gap-xs text-xs shadow-md">
             <span class="material-symbols-outlined text-[16px]">add</span> Resource
           </button>
-          <button onclick="openModal('modal-add-course')" class="bg-secondary hover:bg-secondary-fixed text-on-secondary px-md py-sm rounded-lg font-label-sm transition-all flex items-center gap-xs text-xs shadow-md">
+          <button onclick="openCourseModal()" class="bg-secondary hover:bg-secondary-fixed text-on-secondary px-md py-sm rounded-lg font-label-sm transition-all flex items-center gap-xs text-xs shadow-md">
             <span class="material-symbols-outlined text-[16px]">add</span> Course
           </button>
-          <button onclick="openModal('modal-add-job')" class="bg-tertiary-container hover:bg-tertiary text-on-tertiary-container px-md py-sm rounded-lg font-label-sm transition-all flex items-center gap-xs text-xs shadow-md">
+          <button onclick="openJobModal()" class="bg-tertiary-container hover:bg-tertiary text-on-tertiary-container px-md py-sm rounded-lg font-label-sm transition-all flex items-center gap-xs text-xs shadow-md">
             <span class="material-symbols-outlined text-[16px]">add</span> Internship
           </button>
           <button onclick="openArticleStudio()" class="bg-emerald-500 hover:bg-emerald-400 text-black px-md py-sm rounded-lg font-label-sm transition-all flex items-center gap-xs text-xs font-bold shadow-md">
@@ -229,7 +229,7 @@ nexus_head(
             <h2 class="font-headline-md text-headline-md text-on-surface">Study Resources Catalog</h2>
             <div class="flex items-center gap-xs w-full sm:w-auto">
               <input type="text" id="search-resources" oninput="filterTable('search-resources', 'tbl-resources')" placeholder="Filter resources..." class="bg-surface-container border border-outline-variant/30 rounded-lg px-md py-xs text-xs text-on-surface font-mono outline-none w-full sm:w-64"/>
-              <button onclick="openModal('modal-add-resource')" class="bg-primary text-on-primary px-md py-xs rounded-lg font-label-sm text-xs flex items-center gap-xs whitespace-nowrap">
+              <button onclick="openResourceModal()" class="bg-primary text-on-primary px-md py-xs rounded-lg font-label-sm text-xs flex items-center gap-xs whitespace-nowrap">
                 <span class="material-symbols-outlined text-[16px]">add</span> Add Resource
               </button>
             </div>
@@ -255,6 +255,11 @@ nexus_head(
                     <td class="p-md text-on-surface-variant"><?= htmlspecialchars($r['by']) ?></td>
                     <td class="p-md text-on-surface-variant font-mono text-xs"><?= htmlspecialchars($r['size']) ?></td>
                     <td class="p-md text-right flex items-center justify-end gap-xs">
+                      <?php if (!empty($r['download_url'])): ?>
+                        <a href="<?= htmlspecialchars($r['download_url']) ?>" target="_blank" rel="noopener" class="text-emerald-400 hover:bg-emerald-500/10 p-1.5 rounded-lg transition-colors" title="Download Resource">
+                          <span class="material-symbols-outlined text-[18px]">download</span>
+                        </a>
+                      <?php endif; ?>
                       <button onclick='editResource(<?= json_encode($r) ?>)' class="text-primary hover:bg-primary/10 p-1.5 rounded-lg transition-colors" title="Edit Resource">
                         <span class="material-symbols-outlined text-[18px]">edit</span>
                       </button>
@@ -276,7 +281,7 @@ nexus_head(
             <h2 class="font-headline-md text-headline-md text-on-surface">Course Modules</h2>
             <div class="flex items-center gap-xs w-full sm:w-auto">
               <input type="text" id="search-courses" oninput="filterCards('search-courses', 'grid-courses')" placeholder="Filter courses..." class="bg-surface-container border border-outline-variant/30 rounded-lg px-md py-xs text-xs text-on-surface font-mono outline-none w-full sm:w-64"/>
-              <button onclick="openModal('modal-add-course')" class="bg-secondary text-on-secondary px-md py-xs rounded-lg font-label-sm text-xs flex items-center gap-xs whitespace-nowrap">
+              <button onclick="openCourseModal()" class="bg-secondary text-on-secondary px-md py-xs rounded-lg font-label-sm text-xs flex items-center gap-xs whitespace-nowrap">
                 <span class="material-symbols-outlined text-[16px]">add</span> Add Course
               </button>
             </div>
@@ -288,6 +293,11 @@ nexus_head(
                   <div class="flex justify-between items-start mb-sm">
                     <span class="bg-secondary/10 text-secondary px-2 py-0.5 rounded text-xs font-label-sm uppercase"><?= htmlspecialchars($c['tag']) ?></span>
                     <div class="flex items-center gap-xs">
+                      <?php if (!empty($c['playlist_url'])): ?>
+                        <a href="<?= htmlspecialchars($c['playlist_url']) ?>" target="_blank" rel="noopener" class="text-emerald-400 hover:bg-emerald-500/10 p-1 rounded" title="View Syllabus / Playlist">
+                          <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                        </a>
+                      <?php endif; ?>
                       <button onclick='editCourse(<?= json_encode($c) ?>)' class="text-primary hover:bg-primary/10 p-1 rounded" title="Edit Course">
                         <span class="material-symbols-outlined text-[18px]">edit</span>
                       </button>
@@ -297,6 +307,9 @@ nexus_head(
                     </div>
                   </div>
                   <h3 class="font-headline-md text-body-lg text-on-surface mb-xs"><?= htmlspecialchars($c['title']) ?></h3>
+                  <?php if (!empty($c['description'])): ?>
+                    <p class="text-xs text-on-surface-variant line-clamp-2 mb-xs"><?= htmlspecialchars($c['description']) ?></p>
+                  <?php endif; ?>
                   <p class="text-xs text-on-surface-variant font-mono"><?= $c['lessons'] ?> Lessons · <?= htmlspecialchars($c['level']) ?></p>
                 </div>
               </div>
@@ -311,7 +324,7 @@ nexus_head(
             <h2 class="font-headline-md text-headline-md text-on-surface">Internships & Career Board</h2>
             <div class="flex items-center gap-xs w-full sm:w-auto">
               <input type="text" id="search-jobs" oninput="filterTable('search-jobs', 'tbl-jobs')" placeholder="Filter roles..." class="bg-surface-container border border-outline-variant/30 rounded-lg px-md py-xs text-xs text-on-surface font-mono outline-none w-full sm:w-64"/>
-              <button onclick="openModal('modal-add-job')" class="bg-tertiary-container text-on-tertiary-container px-md py-xs rounded-lg font-label-sm text-xs flex items-center gap-xs whitespace-nowrap">
+              <button onclick="openJobModal()" class="bg-tertiary-container text-on-tertiary-container px-md py-xs rounded-lg font-label-sm text-xs flex items-center gap-xs whitespace-nowrap">
                 <span class="material-symbols-outlined text-[16px]">add</span> Post Internship
               </button>
             </div>
@@ -343,6 +356,11 @@ nexus_head(
                       </div>
                     </td>
                     <td class="p-md text-right flex items-center justify-end gap-xs">
+                      <?php if (!empty($j['apply_url'])): ?>
+                        <a href="<?= htmlspecialchars($j['apply_url']) ?>" target="_blank" rel="noopener" class="text-emerald-400 hover:bg-emerald-500/10 p-1.5 rounded-lg transition-colors" title="Visit Application Portal">
+                          <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                        </a>
+                      <?php endif; ?>
                       <button onclick='editJob(<?= json_encode($j) ?>)' class="text-primary hover:bg-primary/10 p-1.5 rounded-lg transition-colors" title="Edit Role">
                         <span class="material-symbols-outlined text-[18px]">edit</span>
                       </button>
@@ -543,7 +561,7 @@ nexus_head(
 
 <!-- MODAL: ADD / EDIT RESOURCE -->
 <div id="modal-add-resource" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-md">
-  <div class="bg-surface-container rounded-2xl p-lg max-w-md w-full shadow-2xl border border-outline-variant/20">
+  <div class="bg-surface-container rounded-2xl p-lg max-w-lg w-full shadow-2xl border border-outline-variant/20 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-md">
       <h3 id="res-modal-title" class="font-headline-md text-lg text-on-surface">Add Study Resource</h3>
       <button onclick="closeModal('modal-add-resource')" class="text-outline hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
@@ -552,7 +570,7 @@ nexus_head(
       <input type="hidden" id="res-id" name="id" value=""/>
       <div class="space-y-sm mb-md text-sm">
         <div>
-          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Resource Title</label>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Resource Title *</label>
           <input id="res-title" name="title" required placeholder="e.g. Data Structures Notes Module 1" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
         </div>
         <div class="grid grid-cols-2 gap-sm">
@@ -562,13 +580,16 @@ nexus_head(
               <option value="CS">Computer Science</option>
               <option value="ME">Mechanical</option>
               <option value="CE">Civil</option>
+              <option value="EE">Electrical</option>
+              <option value="EC">Electronics</option>
+              <option value="IT">Information Technology</option>
             </select>
           </div>
           <div>
             <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Semester</label>
             <select id="res-sem" name="sem" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface">
               <?php for ($s = 1; $s <= 8; $s++): ?>
-                <option value="S<?= $s ?>">S<?= $s ?></option>
+                <option value="S<?= $s ?>">Semester <?= $s ?></option>
               <?php endfor; ?>
             </select>
           </div>
@@ -581,6 +602,8 @@ nexus_head(
               <option value="PYQ">PYQ</option>
               <option value="Lab Manual">Lab Manual</option>
               <option value="Cheat Sheet">Cheat Sheet</option>
+              <option value="Assignment">Assignment</option>
+              <option value="Syllabus">Syllabus</option>
             </select>
           </div>
           <div>
@@ -588,15 +611,35 @@ nexus_head(
             <input id="res-by" name="by" value="Yaswant Admin" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
           </div>
         </div>
+        <div class="grid grid-cols-2 gap-sm">
+          <div>
+            <label class="block text-xs font-label-sm text-on-surface-variant mb-1">File Size</label>
+            <input id="res-size" name="size" value="2.0 MB" placeholder="e.g. 2.5 MB" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface text-xs" />
+          </div>
+          <div>
+            <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Color Theme</label>
+            <select id="res-color" name="color" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface text-xs">
+              <option value="primary">Primary (Blue)</option>
+              <option value="secondary">Secondary (Purple)</option>
+              <option value="tertiary">Tertiary (Cyan)</option>
+              <option value="green">Green (Emerald)</option>
+              <option value="amber">Amber (Orange)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Download / Drive URL (optional)</label>
+          <input id="res-download-url" name="download_url" type="url" placeholder="https://drive.google.com/file/..." class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface font-mono text-xs" />
+        </div>
       </div>
-      <button type="submit" id="res-btn-submit" class="w-full bg-primary text-on-primary py-sm rounded-lg font-label-sm">Save Resource</button>
+      <button type="submit" id="res-btn-submit" class="w-full bg-primary text-on-primary py-sm rounded-lg font-label-sm font-bold">Save Resource</button>
     </form>
   </div>
 </div>
 
 <!-- MODAL: ADD / EDIT COURSE -->
 <div id="modal-add-course" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-md">
-  <div class="bg-surface-container rounded-2xl p-lg max-w-md w-full shadow-2xl border border-outline-variant/20">
+  <div class="bg-surface-container rounded-2xl p-lg max-w-lg w-full shadow-2xl border border-outline-variant/20 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-md">
       <h3 id="course-modal-title" class="font-headline-md text-lg text-on-surface">Create Course Module</h3>
       <button onclick="closeModal('modal-add-course')" class="text-outline hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
@@ -605,17 +648,27 @@ nexus_head(
       <input type="hidden" id="course-id" name="id" value=""/>
       <div class="space-y-sm mb-md text-sm">
         <div>
-          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Course Title</label>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Course Title *</label>
           <input id="course-title" name="title" required placeholder="e.g. Distributed Systems 101" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
         </div>
         <div>
-          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Category Tag</label>
-          <input id="course-tag" name="tag" value="Systems" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Short Description</label>
+          <textarea id="course-description" name="description" rows="2" placeholder="Brief description of this course..." class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface resize-none text-xs"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-sm">
+          <div>
+            <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Category Tag</label>
+            <input id="course-tag" name="tag" value="Systems" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
+          </div>
+          <div>
+            <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Material Icon Name</label>
+            <input id="course-icon" name="icon" value="school" placeholder="school, code, terminal..." class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface font-mono text-xs" />
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-sm">
           <div>
             <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Lessons Count</label>
-            <input id="course-lessons" name="lessons" type="number" value="30" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
+            <input id="course-lessons" name="lessons" type="number" min="1" value="30" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
           </div>
           <div>
             <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Level</label>
@@ -626,15 +679,30 @@ nexus_head(
             </select>
           </div>
         </div>
+        <div>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Color Theme</label>
+          <select id="course-color" name="color" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface">
+            <option value="primary">Primary (Blue)</option>
+            <option value="secondary">Secondary (Purple)</option>
+            <option value="tertiary">Tertiary (Teal)</option>
+            <option value="green">Green (Emerald)</option>
+            <option value="red">Red (Rose)</option>
+            <option value="amber">Amber (Gold)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">YouTube Playlist URL (optional)</label>
+          <input id="course-playlist" name="playlist_url" type="url" placeholder="https://youtube.com/playlist?list=..." class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface font-mono text-xs" />
+        </div>
       </div>
-      <button type="submit" id="course-btn-submit" class="w-full bg-secondary text-on-secondary py-sm rounded-lg font-label-sm">Publish Course</button>
+      <button type="submit" id="course-btn-submit" class="w-full bg-secondary text-on-secondary py-sm rounded-lg font-label-sm font-bold">Publish Course</button>
     </form>
   </div>
 </div>
 
 <!-- MODAL: ADD / EDIT JOB -->
 <div id="modal-add-job" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-md">
-  <div class="bg-surface-container rounded-2xl p-lg max-w-md w-full shadow-2xl border border-outline-variant/20">
+  <div class="bg-surface-container rounded-2xl p-lg max-w-lg w-full shadow-2xl border border-outline-variant/20 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-md">
       <h3 id="job-modal-title" class="font-headline-md text-lg text-on-surface">Post Internship Role</h3>
       <button onclick="closeModal('modal-add-job')" class="text-outline hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
@@ -643,12 +711,12 @@ nexus_head(
       <input type="hidden" id="job-id" name="id" value=""/>
       <div class="space-y-sm mb-md text-sm">
         <div>
-          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Role Title</label>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Role Title *</label>
           <input id="job-title" name="title" required placeholder="e.g. Backend Engineer Intern" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
         </div>
         <div>
-          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Company Name</label>
-          <input id="job-company" name="company" required placeholder="e.g. Stripe, TechCorp" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Company Name *</label>
+          <input id="job-company" name="company" required placeholder="e.g. Stripe, TechCorp, Google" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
         </div>
         <div class="grid grid-cols-2 gap-sm">
           <div>
@@ -657,15 +725,23 @@ nexus_head(
           </div>
           <div>
             <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Stipend / Pay</label>
-            <input id="job-pay" name="pay" value="$45–$55/hr" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
+            <input id="job-pay" name="pay" value="₹20,000/month" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
           </div>
         </div>
         <div>
           <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Tech Stack Tags (comma separated)</label>
           <input id="job-tags" name="tags" value="React, Node.js, SQL" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
         </div>
+        <div>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Apply URL (optional)</label>
+          <input id="job-apply-url" name="apply_url" type="url" placeholder="https://company.com/careers/apply" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface font-mono text-xs" />
+        </div>
+        <div>
+          <label class="block text-xs font-label-sm text-on-surface-variant mb-1">Application Deadline (optional)</label>
+          <input id="job-deadline" name="deadline" type="date" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-sm text-on-surface" />
+        </div>
       </div>
-      <button type="submit" id="job-btn-submit" class="w-full bg-tertiary-container text-on-tertiary-container py-sm rounded-lg font-label-sm">Post Role</button>
+      <button type="submit" id="job-btn-submit" class="w-full bg-tertiary-container text-on-tertiary-container py-sm rounded-lg font-label-sm font-bold">Post Internship Role</button>
     </form>
   </div>
 </div>
@@ -791,7 +867,30 @@ nexus_head(
   </div>
 </div>
 
+<style>
+  .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+  .toast { pointer-events: auto; display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 600; font-family: monospace; box-shadow: 0 8px 32px rgba(0,0,0,.4); backdrop-filter: blur(8px); animation: slideIn 0.25s ease; }
+  .toast.success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #34d399; }
+  .toast.error   { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.4);  color: #f87171; }
+  .toast.info    { background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.4); color: #a5b4fc; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .btn-loading { opacity: 0.7; pointer-events: none; }
+</style>
+<div class="toast-container" id="toast-container"></div>
+
 <script>
+  // ── Toast Notification System ──────────────────────────────
+  function toast(msg, type = 'success', duration = 3500) {
+    const container = document.getElementById('toast-container');
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    const icon = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+    el.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px">${icon}</span>${msg}`;
+    container.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(100%)'; el.style.transition = '0.3s'; setTimeout(() => el.remove(), 300); }, duration);
+  }
+
+  // ── Modal Helpers ──────────────────────────────────────────
   function openModal(id) {
     const el = document.getElementById(id);
     if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
@@ -801,7 +900,34 @@ nexus_head(
     if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
   }
 
-  // Open Article Studio Fresh
+  function openResourceModal() {
+    const f = document.getElementById('form-resource');
+    if (f) f.reset();
+    document.getElementById('res-id').value = '';
+    document.getElementById('res-modal-title').innerText = 'Add Study Resource';
+    document.getElementById('res-btn-submit').innerText = 'Save Resource';
+    openModal('modal-add-resource');
+  }
+
+  function openCourseModal() {
+    const f = document.getElementById('form-course');
+    if (f) f.reset();
+    document.getElementById('course-id').value = '';
+    document.getElementById('course-modal-title').innerText = 'Create Course Module';
+    document.getElementById('course-btn-submit').innerText = 'Publish Course';
+    openModal('modal-add-course');
+  }
+
+  function openJobModal() {
+    const f = document.getElementById('form-job');
+    if (f) f.reset();
+    document.getElementById('job-id').value = '';
+    document.getElementById('job-modal-title').innerText = 'Post Internship Role';
+    document.getElementById('job-btn-submit').innerText = 'Post Internship Role';
+    openModal('modal-add-job');
+  }
+
+  // ── Article Studio ─────────────────────────────────────────
   function openArticleStudio() {
     document.getElementById('article-modal-title').innerText = 'Rich Blog Article Studio';
     document.getElementById('article-id').value = '';
@@ -817,7 +943,6 @@ nexus_head(
     openModal('modal-add-article');
   }
 
-  // Edit Existing Article in Studio
   function editArticle(a) {
     document.getElementById('article-modal-title').innerText = 'Edit Article Studio';
     document.getElementById('article-id').value = a.id;
@@ -833,62 +958,44 @@ nexus_head(
     openModal('modal-add-article');
   }
 
-  // Switch Mode between Write & Live Preview
   function switchArticleMode(mode) {
     const paneWrite = document.getElementById('pane-write');
-    const panePrev = document.getElementById('pane-preview');
-    const btnWrite = document.getElementById('btn-mode-write');
-    const btnPrev = document.getElementById('btn-mode-preview');
-
+    const panePrev  = document.getElementById('pane-preview');
+    const btnWrite  = document.getElementById('btn-mode-write');
+    const btnPrev   = document.getElementById('btn-mode-preview');
     if (mode === 'write') {
-      paneWrite.classList.remove('hidden');
-      panePrev.classList.add('hidden');
+      paneWrite.classList.remove('hidden'); panePrev.classList.add('hidden');
       btnWrite.className = 'flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-primary text-on-primary transition-all flex items-center justify-center gap-xs';
-      btnPrev.className = 'flex-1 py-1.5 rounded-lg text-xs font-mono font-bold text-on-surface-variant hover:text-on-surface transition-all flex items-center justify-center gap-xs';
+      btnPrev.className  = 'flex-1 py-1.5 rounded-lg text-xs font-mono font-bold text-on-surface-variant hover:text-on-surface transition-all flex items-center justify-center gap-xs';
     } else {
-      paneWrite.classList.add('hidden');
-      panePrev.classList.remove('hidden');
-      btnPrev.className = 'flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-primary text-on-primary transition-all flex items-center justify-center gap-xs';
+      paneWrite.classList.add('hidden'); panePrev.classList.remove('hidden');
+      btnPrev.className  = 'flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-primary text-on-primary transition-all flex items-center justify-center gap-xs';
       btnWrite.className = 'flex-1 py-1.5 rounded-lg text-xs font-mono font-bold text-on-surface-variant hover:text-on-surface transition-all flex items-center justify-center gap-xs';
-      
-      // Update Live Preview fields
       const img = document.getElementById('article-img').value;
       const prevCover = document.getElementById('prev-cover');
-      if (img) {
-        document.getElementById('prev-img-el').src = img;
-        prevCover.classList.remove('hidden');
-      } else {
-        prevCover.classList.add('hidden');
-      }
-      document.getElementById('prev-title').innerText = document.getElementById('article-title').value || 'Untitled Article';
-      document.getElementById('prev-cat').innerText = (document.getElementById('article-cat').value || 'TECHNICAL').toUpperCase();
-      document.getElementById('prev-read').innerText = (document.getElementById('article-read').value || '5 min') + ' read';
+      if (img) { document.getElementById('prev-img-el').src = img; prevCover.classList.remove('hidden'); } else { prevCover.classList.add('hidden'); }
+      document.getElementById('prev-title').innerText  = document.getElementById('article-title').value || 'Untitled Article';
+      document.getElementById('prev-cat').innerText    = (document.getElementById('article-cat').value || 'TECHNICAL').toUpperCase();
+      document.getElementById('prev-read').innerText   = (document.getElementById('article-read').value || '5 min') + ' read';
       document.getElementById('prev-author').innerText = 'By ' + (document.getElementById('article-author').value || 'Yaswant Team');
       document.getElementById('prev-excerpt').innerText = document.getElementById('article-excerpt').value || 'No summary excerpt entered.';
-      document.getElementById('prev-body').innerHTML = document.getElementById('article-content').value || '<p class="text-zinc-500">No article body written yet.</p>';
+      document.getElementById('prev-body').innerHTML   = document.getElementById('article-content').value || '<p class="text-zinc-500">No article body written yet.</p>';
     }
   }
 
-  // Insert Rich Snippets (Photos, Videos, Links, Code, Quotes, Headings)
   function insertArticleSnippet(type) {
     const area = document.getElementById('article-content');
     let snippet = '';
-
     if (type === 'img') {
-      const url = prompt('Enter Image URL:', 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97');
-      if (!url) return;
+      const url = prompt('Enter Image URL:', 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97'); if (!url) return;
       const alt = prompt('Enter Photo Caption / Alt text:', 'Engineering Diagram');
       snippet = `\n<figure class="my-md">\n  <img src="${url}" alt="${alt || 'Image'}" class="w-full rounded-xl shadow-lg border border-outline-variant/20"/>\n  <figcaption class="text-center text-xs text-zinc-400 mt-xs font-mono">${alt || ''}</figcaption>\n</figure>\n`;
     } else if (type === 'video') {
-      let url = prompt('Enter YouTube Embed / Video URL (e.g. https://www.youtube.com/embed/dQw4w9WgXcQ):', 'https://www.youtube.com/embed/dQw4w9WgXcQ');
-      if (!url) return;
-      if (url.includes('watch?v=')) {
-        url = url.replace('watch?v=', 'embed/');
-      }
+      let url = prompt('Enter YouTube Embed URL (e.g. https://www.youtube.com/embed/...):', 'https://www.youtube.com/embed/dQw4w9WgXcQ'); if (!url) return;
+      if (url.includes('watch?v=')) url = url.replace('watch?v=', 'embed/');
       snippet = `\n<div class="aspect-video w-full my-md rounded-xl overflow-hidden shadow-xl border border-outline-variant/20">\n  <iframe src="${url}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>\n</div>\n`;
     } else if (type === 'link') {
-      const url = prompt('Enter Hyperlink Target URL:', 'https://yaswant.co.in');
-      if (!url) return;
+      const url = prompt('Enter URL:', 'https://yaswant.co.in'); if (!url) return;
       const text = prompt('Enter Link Text:', 'Visit Link');
       snippet = `<a href="${url}" target="_blank" class="text-primary hover:underline font-bold">${text || url}</a>`;
     } else if (type === 'code') {
@@ -898,143 +1005,157 @@ nexus_head(
     } else if (type === 'quote') {
       snippet = `\n<blockquote class="bg-surface-container-lowest border-l-4 border-primary p-md rounded-r-xl italic text-on-surface-variant my-md">\n  "Engineering is the art of modeling materials we do not wholly understand..."\n</blockquote>\n`;
     }
-
-    const start = area.selectionStart;
-    const end = area.selectionEnd;
+    const start = area.selectionStart, end = area.selectionEnd;
     area.value = area.value.substring(0, start) + snippet + area.value.substring(end);
     area.focus();
   }
 
-  // Filter tables by user input
+  // ── Table / Card Filters ───────────────────────────────────
   function filterTable(inputId, tableId) {
     const q = document.getElementById(inputId).value.toLowerCase();
-    const rows = document.querySelectorAll(`#${tableId} tbody tr`);
-    rows.forEach(r => {
-      const text = r.innerText.toLowerCase();
-      r.style.display = text.includes(q) ? '' : 'none';
+    document.querySelectorAll(`#${tableId} tbody tr`).forEach(r => {
+      r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none';
     });
   }
-
-  // Filter grid cards
   function filterCards(inputId, gridId) {
     const q = document.getElementById(inputId).value.toLowerCase();
-    const cards = document.querySelectorAll(`#${gridId} .card-item`);
-    cards.forEach(c => {
-      const text = c.innerText.toLowerCase();
-      c.style.display = text.includes(q) ? '' : 'none';
+    document.querySelectorAll(`#${gridId} .card-item`).forEach(c => {
+      c.style.display = c.innerText.toLowerCase().includes(q) ? '' : 'none';
     });
   }
 
-  // Export Subscribers to CSV
+  // ── Export CSV ─────────────────────────────────────────────
   function exportSubscribersCSV() {
     const rows = document.querySelectorAll('#tbl-subscribers tbody tr');
     let csv = 'Email,Date Subscribed\n';
     rows.forEach(r => {
       const cols = r.querySelectorAll('td');
-      if (cols.length >= 2) {
-        csv += `"${cols[0].innerText.trim()}","${cols[1].innerText.trim()}"\n`;
-      }
+      if (cols.length >= 2) csv += `"${cols[0].innerText.trim()}","${cols[1].innerText.trim()}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'subscribers_list.csv';
-    a.click();
+    const a = document.createElement('a'); a.href = url; a.download = 'subscribers_list.csv'; a.click();
+    toast('CSV downloaded successfully', 'success');
   }
 
-  // Edit Handlers for populated forms
+  // ── Edit Handlers ──────────────────────────────────────────
   function editResource(r) {
     document.getElementById('res-modal-title').innerText = 'Edit Study Resource';
-    document.getElementById('res-id').value = r.id;
-    document.getElementById('res-title').value = r.title;
-    document.getElementById('res-branch').value = r.branch || 'CS';
-    document.getElementById('res-sem').value = r.sem || 'S1';
-    document.getElementById('res-type').value = r.type || 'Notes';
-    document.getElementById('res-by').value = r.by || 'Yaswant Admin';
+    document.getElementById('res-id').value            = r.id;
+    document.getElementById('res-title').value         = r.title;
+    document.getElementById('res-branch').value        = r.branch || 'CS';
+    document.getElementById('res-sem').value           = r.sem || 'S1';
+    document.getElementById('res-type').value          = r.type || 'Notes';
+    document.getElementById('res-by').value            = r.by || 'Yaswant Admin';
+    if (document.getElementById('res-size')) document.getElementById('res-size').value = r.size || '2.0 MB';
+    if (document.getElementById('res-color')) document.getElementById('res-color').value = r.color || 'primary';
+    document.getElementById('res-download-url').value  = r.download_url || '';
     document.getElementById('res-btn-submit').innerText = 'Update Resource';
     openModal('modal-add-resource');
   }
 
   function editCourse(c) {
-    document.getElementById('course-modal-title').innerText = 'Edit Course Module';
-    document.getElementById('course-id').value = c.id;
-    document.getElementById('course-title').value = c.title;
-    document.getElementById('course-tag').value = c.tag || 'General';
-    document.getElementById('course-lessons').value = c.lessons || 20;
-    document.getElementById('course-level').value = c.level || 'Beginner';
-    document.getElementById('course-btn-submit').innerText = 'Update Course';
+    document.getElementById('course-modal-title').innerText  = 'Edit Course Module';
+    document.getElementById('course-id').value               = c.id;
+    document.getElementById('course-title').value            = c.title;
+    document.getElementById('course-tag').value              = c.tag || 'General';
+    document.getElementById('course-lessons').value          = c.lessons || 20;
+    document.getElementById('course-level').value            = c.level || 'Beginner';
+    document.getElementById('course-icon').value             = c.icon || 'school';
+    document.getElementById('course-color').value            = c.color || 'primary';
+    document.getElementById('course-playlist').value         = c.playlist_url || '';
+    document.getElementById('course-description').value      = c.description || '';
+    document.getElementById('course-btn-submit').innerText   = 'Update Course';
     openModal('modal-add-course');
   }
 
   function editJob(j) {
-    document.getElementById('job-modal-title').innerText = 'Edit Internship Role';
-    document.getElementById('job-id').value = j.id;
-    document.getElementById('job-title').value = j.title;
-    document.getElementById('job-company').value = j.company;
-    document.getElementById('job-location').value = j.location || 'Remote';
-    document.getElementById('job-pay').value = j.pay || '$40/hr';
-    document.getElementById('job-tags').value = Array.isArray(j.tags) ? j.tags.join(', ') : (j.tags || '');
-    document.getElementById('job-btn-submit').innerText = 'Update Internship';
+    document.getElementById('job-modal-title').innerText  = 'Edit Internship Role';
+    document.getElementById('job-id').value               = j.id;
+    document.getElementById('job-title').value            = j.title;
+    document.getElementById('job-company').value          = j.company;
+    document.getElementById('job-location').value         = j.location || 'Remote';
+    document.getElementById('job-pay').value              = j.pay || '₹20,000/month';
+    document.getElementById('job-tags').value             = Array.isArray(j.tags) ? j.tags.join(', ') : (j.tags || '');
+    document.getElementById('job-apply-url').value        = j.apply_url || j.apply_link || '';
+    document.getElementById('job-deadline').value         = j.deadline || '';
+    document.getElementById('job-btn-submit').innerText   = 'Update Internship';
     openModal('modal-add-job');
   }
 
-  // Form Submission Processors
+  // ── Form Submit Handlers ───────────────────────────────────
   function handleResourceSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('res-id').value;
-    const action = id ? 'edit_resource' : 'add_resource';
-    submitAdminForm(e.target, action);
+    submitAdminForm(e.target, id ? 'edit_resource' : 'add_resource', 'modal-add-resource', 'res-btn-submit');
   }
-
   function handleCourseSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('course-id').value;
-    const action = id ? 'edit_course' : 'add_course';
-    submitAdminForm(e.target, action);
+    submitAdminForm(e.target, id ? 'edit_course' : 'add_course', 'modal-add-course', 'course-btn-submit');
   }
-
   function handleJobSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('job-id').value;
-    const action = id ? 'edit_job' : 'add_job';
-    submitAdminForm(e.target, action);
+    submitAdminForm(e.target, id ? 'edit_job' : 'add_job', 'modal-add-job', 'job-btn-submit');
   }
-
   function handleArticleSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('article-id').value;
-    const action = id ? 'edit_article' : 'add_article';
-    submitAdminForm(e.target, action);
+    submitAdminForm(e.target, id ? 'edit_article' : 'add_article', 'modal-add-article', 'article-btn-submit');
   }
 
-  function submitAdminForm(formEl, action) {
+  // ── Core Submit Engine ─────────────────────────────────────
+  function submitAdminForm(formEl, action, modalId, btnId) {
+    const btn = document.getElementById(btnId);
+    const originalText = btn.innerText;
+    btn.innerText = 'Saving...';
+    btn.classList.add('btn-loading');
+
     const formData = new FormData(formEl);
-    formData.append('action', action);
+    formData.set('action', action);
+
     fetch('api/admin_action.php', { method: 'POST', body: formData })
       .then(r => r.json())
       .then(res => {
+        btn.innerText = originalText;
+        btn.classList.remove('btn-loading');
         if (res.success) {
-          window.location.reload();
+          toast('✓ ' + (res.message || 'Saved successfully'), 'success');
+          closeModal(modalId);
+          setTimeout(() => window.location.reload(), 900);
         } else {
-          alert(res.error || 'Operation failed');
+          toast('✗ ' + (res.error || 'Operation failed'), 'error');
         }
+      })
+      .catch(err => {
+        btn.innerText = originalText;
+        btn.classList.remove('btn-loading');
+        toast('Network error: ' + err.message, 'error');
       });
   }
 
+  // ── Delete Item ────────────────────────────────────────────
   function deleteItem(action, id) {
-    if (!confirm('Are you sure you want to delete this item?')) return;
+    const label = { delete_resource: 'resource', delete_course: 'course', delete_job: 'internship posting', delete_article: 'article' }[action] || 'item';
+    if (!confirm(`Delete this ${label}? This action cannot be undone.`)) return;
     const formData = new FormData();
     formData.append('action', action);
     formData.append('id', id);
     fetch('api/admin_action.php', { method: 'POST', body: formData })
       .then(r => r.json())
       .then(res => {
-        if (res.success) window.location.reload();
-        else alert(res.error || 'Delete failed');
-      });
+        if (res.success) {
+          toast('Deleted successfully', 'success');
+          setTimeout(() => window.location.reload(), 700);
+        } else {
+          toast(res.error || 'Delete failed', 'error');
+        }
+      })
+      .catch(() => toast('Network error during delete', 'error'));
   }
 
+  // ── Delete Subscriber ──────────────────────────────────────
   function deleteSubscriber(email) {
     if (!confirm('Remove subscriber ' + email + '?')) return;
     const formData = new FormData();
@@ -1043,8 +1164,16 @@ nexus_head(
     fetch('api/admin_action.php', { method: 'POST', body: formData })
       .then(r => r.json())
       .then(res => {
-        if (res.success) window.location.reload();
-        else alert(res.error || 'Delete failed');
+        if (res.success) { toast('Subscriber removed', 'success'); setTimeout(() => window.location.reload(), 700); }
+        else toast(res.error || 'Delete failed', 'error');
       });
   }
+
+  // ── Close modal on backdrop click ──────────────────────────
+  ['modal-add-resource','modal-add-course','modal-add-job','modal-add-article'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', e => { if (e.target === el) closeModal(id); });
+  });
 </script>
+</body>
+</html>

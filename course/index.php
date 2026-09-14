@@ -160,6 +160,11 @@ if ($search) {
                   class="text-base md:text-lg font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-2">
                   <?= htmlspecialchars($c['title']) ?>
                 </h3>
+                <?php if (!empty($c['description'])): ?>
+                  <p class="text-xs text-zinc-400 mt-2 line-clamp-2 font-light">
+                    <?= htmlspecialchars($c['description']) ?>
+                  </p>
+                <?php endif; ?>
                 <div class="flex items-center gap-3 mt-3 text-xs font-mono text-zinc-400">
                   <span class="flex items-center gap-1"><span
                       class="material-symbols-outlined text-[15px] text-cyan-400">play_lesson</span> <?= $c['lessons'] ?>

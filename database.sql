@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS `courses` (
     `color` VARCHAR(20) NOT NULL DEFAULT 'primary',
     `icon` VARCHAR(50) NOT NULL DEFAULT 'school',
     `playlist_url` VARCHAR(500) NULL,
+    `description` TEXT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX `idx_level` (`level`),
     INDEX `idx_tag` (`tag`)
@@ -129,6 +130,8 @@ CREATE TABLE IF NOT EXISTS `jobs` (
     `tags` TEXT NULL,
     `color` VARCHAR(20) NOT NULL DEFAULT 'primary',
     `apply_link` VARCHAR(500) NULL,
+    `apply_url` VARCHAR(500) NULL,
+    `deadline` VARCHAR(100) NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX `idx_company` (`company`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

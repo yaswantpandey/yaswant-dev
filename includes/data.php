@@ -8,7 +8,7 @@ if (!function_exists('get_resources')) {
     {
         try {
             $pdo = get_db();
-            $stmt = $pdo->query("SELECT id, branch, sem, type, title, by_author AS `by`, file_size AS size, color FROM resources ORDER BY id DESC");
+            $stmt = $pdo->query("SELECT id, branch, sem, type, title, by_author AS `by`, file_size AS size, color, download_url FROM resources ORDER BY id DESC");
             return $stmt->fetchAll();
         } catch (Exception $e) {
             error_log("Error fetching resources: " . $e->getMessage());
@@ -22,7 +22,7 @@ if (!function_exists('get_courses')) {
     {
         try {
             $pdo = get_db();
-            $stmt = $pdo->query("SELECT id, title, tag, lessons, level, color, icon, playlist_url FROM courses ORDER BY id DESC");
+            $stmt = $pdo->query("SELECT id, title, tag, lessons, level, color, icon, playlist_url, description FROM courses ORDER BY id DESC");
             return $stmt->fetchAll();
         } catch (Exception $e) {
             error_log("Error fetching courses: " . $e->getMessage());
@@ -36,7 +36,7 @@ if (!function_exists('get_jobs')) {
     {
         try {
             $pdo = get_db();
-            $stmt = $pdo->query("SELECT id, title, company, location, pay, tags, color FROM jobs ORDER BY id DESC");
+            $stmt = $pdo->query("SELECT id, title, company, location, pay, tags, color, COALESCE(apply_url, apply_link) AS apply_url, apply_link, deadline FROM jobs ORDER BY id DESC");
             $jobs = $stmt->fetchAll();
             foreach ($jobs as &$j) {
                 if (isset($j['tags']) && is_string($j['tags'])) {

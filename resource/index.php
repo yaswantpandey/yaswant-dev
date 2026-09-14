@@ -197,9 +197,15 @@ $filtered = array_values(array_filter($resources, function($r) use ($filterBranc
                     <div>By: <span class="text-zinc-300"><?= htmlspecialchars($r['by']) ?></span></div>
                     <div class="text-zinc-500"><?= htmlspecialchars($r['size']) ?> &bull; PDF</div>
                   </div>
-                  <button onclick="alert('Downloading <?= htmlspecialchars($r['title']) ?> (<?= $r['size'] ?>)...')" class="bg-zinc-900 group-hover:bg-emerald-500 group-hover:text-black text-white px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-colors flex items-center gap-1 border border-zinc-800 group-hover:border-transparent">
-                    Get <span class="material-symbols-outlined text-[14px]">download</span>
-                  </button>
+                  <?php if (!empty($r['download_url'])): ?>
+                    <a href="<?= htmlspecialchars($r['download_url']) ?>" target="_blank" rel="noopener" class="bg-zinc-900 group-hover:bg-emerald-500 group-hover:text-black text-white px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-colors flex items-center gap-1 border border-zinc-800 group-hover:border-transparent">
+                      Download <span class="material-symbols-outlined text-[14px]">download</span>
+                    </a>
+                  <?php else: ?>
+                    <button onclick="alert('Downloading <?= htmlspecialchars($r['title']) ?> (<?= $r['size'] ?>)...')" class="bg-zinc-900 group-hover:bg-emerald-500 group-hover:text-black text-white px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-colors flex items-center gap-1 border border-zinc-800 group-hover:border-transparent">
+                      Get <span class="material-symbols-outlined text-[14px]">download</span>
+                    </button>
+                  <?php endif; ?>
                 </div>
               </article>
             <?php endforeach; ?>

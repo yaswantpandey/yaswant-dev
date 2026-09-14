@@ -122,6 +122,7 @@ function init_db_schema(PDO $pdo): void
             `color` VARCHAR(20) NOT NULL DEFAULT 'primary',
             `icon` VARCHAR(50) NOT NULL DEFAULT 'school',
             `playlist_url` VARCHAR(500) NULL,
+            `description` TEXT NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
@@ -136,6 +137,8 @@ function init_db_schema(PDO $pdo): void
             `tags` TEXT NULL,
             `color` VARCHAR(20) NOT NULL DEFAULT 'primary',
             `apply_link` VARCHAR(500) NULL,
+            `apply_url` VARCHAR(500) NULL,
+            `deadline` VARCHAR(100) NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
@@ -201,4 +204,22 @@ function init_db_schema(PDO $pdo): void
             `visited_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
+
+    // Dynamic Safe Migrations for existing deployments
+    $checkAndAdd = function(PDO $p, string $table, string $col, string $def) {
+        try {
+            $check = $p->query("SHOW COLUMNS FROM `{$table}` LIKE '{$col}'");
+            if ($check && $check->rowCount() === 0) {
+                $p->exec("ALTER TABLE `{$table}` ADD COLUMN `{$col}` {$def}");
+            }
+        } catch (Exception $e) {
+            // Non-critical fallback
+        }
+    };
+
+    $checkAndAdd($pdo, 'courses', 'description', 'TEXT NULL');
+    $checkAndAdd($pdo, 'jobs', 'apply_url', 'VARCHAR(500) NULL');
+    $checkAndAdd($pdo, 'jobs', 'apply_link', 'VARCHAR(500) NULL');
+    $checkAndAdd($pdo, 'jobs', 'deadline', 'VARCHAR(100) NULL');
+    $checkAndAdd($pdo, 'resources', 'download_url', 'VARCHAR(500) NULL');
 }
